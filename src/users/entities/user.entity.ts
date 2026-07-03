@@ -1,1 +1,32 @@
-export class User {}
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { UserRoleEnums } from '../enums/userStatusEnums';
+
+@Entity({ name: 'users' })
+export class User {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({ unique: true })
+  mobile: string;
+
+  @Column({ nullable: false })
+  display_name: string;
+
+  @Column({ nullable: false })
+  password: string;
+
+  @Column({ type: 'enum', enum: UserRoleEnums, default: UserRoleEnums.USER })
+  role: UserRoleEnums;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
