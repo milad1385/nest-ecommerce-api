@@ -19,6 +19,9 @@ export class User {
   display_name: string;
 
   @Column({ nullable: false })
+  username: string;
+
+  @Column({ nullable: false })
   password: string;
 
   @Column({ type: 'enum', enum: UserRoleEnums, default: UserRoleEnums.USER })
