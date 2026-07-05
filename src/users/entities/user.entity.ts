@@ -15,10 +15,13 @@ export class User {
   @Column({ unique: true })
   mobile: string;
 
+  @Column({ unique: true })
+  email: string;
+
   @Column({ nullable: false })
   display_name: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   username: string;
 
   @Column({ nullable: false })
