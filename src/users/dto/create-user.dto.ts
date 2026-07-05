@@ -41,7 +41,7 @@ export class CreateUserDto {
 
   @IsEnum(UserRoleEnums, { message: 'نقش کاربر باید یا user باشد یا admin' })
   @IsOptional()
-  role: UserRoleEnums;
+  role?: UserRoleEnums = UserRoleEnums.USER;
 }
 
 export class GetUserDto {

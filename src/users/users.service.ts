@@ -66,9 +66,16 @@ export class UsersService {
     }
   }
 
-  async findOneByMobile(mobile: string, email: string, username) {
+  async findOneByMobile(mobile: string, email?: string, username?: string) {
     const user = await this.userRepository.findOne({
       where: [{ mobile }, { email }, { username }],
+    });
+    return user;
+  }
+
+  async findOneByMobileNumber(mobile: string) {
+    const user = await this.userRepository.findOne({
+      where: { mobile },
     });
     return user;
   }
