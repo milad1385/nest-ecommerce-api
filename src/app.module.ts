@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { AddressModule } from './address/address.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,7 +20,8 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true,
     }),
     UsersModule,
-    AuthModule
+    AuthModule,
+    AddressModule
   ],
 })
 export class AppModule {}
