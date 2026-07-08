@@ -1,11 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -14,10 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return {
-      userId: payload.sub,
-      mobile: payload.mobile,
-      display_name: payload.display_name,
-    };
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('کاربر یافت نشد');
+    }
+    return user;
   }
 }
