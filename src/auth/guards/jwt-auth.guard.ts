@@ -13,7 +13,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest(err: any, user: any, info: any) {
     if (err || !user) {
-      throw err || new UnauthorizedException('توکن نامعتبر یا منقضی شده است');
+      throw err || new UnauthorizedException("توکن منقضی شده است لطفا لاگین کنید");
     }
     return user;
   }
