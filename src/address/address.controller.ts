@@ -47,7 +47,6 @@ export class AddressController {
   @UseGuards(JwtAuthGuard)
   async findAll(
     @Res() res: Response,
-    @GetUser('id') userId: number,
     @Query() params: GetAddressDto,
   ) {
     const { page, limit } = params;
