@@ -70,7 +70,7 @@ export class AddressController {
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: 'آدرس با موفقیت دریافت شد.',
-      data:address
+      data: address,
     });
   }
 
@@ -80,7 +80,12 @@ export class AddressController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.addressService.remove(+id);
+  async remove(@Res() res: Response, @Param() { id }: GetAddressIdDto) {
+    const deletedAddress = await this.addressService.remove(id);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'آدرس با موفقیت حذف شد',
+      data: deletedAddress,
+    });
   }
 }
