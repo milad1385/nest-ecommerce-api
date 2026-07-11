@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAddressDto } from './dto/create-address.dto';
+import { CreateAddressDto, GetAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Address } from './entities/address.entity';
@@ -13,7 +13,10 @@ export class AddressService {
     private readonly addressRepository: Repository<Address>,
     private readonly usersService: UsersService,
   ) {}
-  async create(createAddressDto: CreateAddressDto, userId: number) {
+  async create(
+    createAddressDto: CreateAddressDto,
+    userId: number,
+  ): Promise<Address> {
     const user = await this.usersService.findOne(userId);
     const newAddress = this.addressRepository.create({
       user,
@@ -23,8 +26,29 @@ export class AddressService {
     return await this.addressRepository.save(newAddress);
   }
 
-  findAll() {
-    return `This action returns all address`;
+  async findAll({
+    page = 1,
+    limit = 10,
+  }: GetAddressDto): Promise<{ addresses: Address[]; count: number }> {
+    const count = await this.addressRepository.count({});
+    const addresses = await this.addressRepository.find({
+      select: {
+        user: {
+          display_name: true,
+          username: true,
+          mobile: true,
+          email: true,
+          createdAt: true,
+        },
+      },
+      relations: {
+        user: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { addresses, count };
   }
 
   findOne(id: number) {
