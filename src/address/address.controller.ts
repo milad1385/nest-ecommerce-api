@@ -9,13 +9,15 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AddressService } from './address.service';
-import { CreateAddressDto } from './dto/create-address.dto';
+import { CreateAddressDto, GetAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import type { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { createPagination } from 'utils/func';
 
 @Controller('address')
 export class AddressController {
@@ -38,8 +40,23 @@ export class AddressController {
   }
 
   @Get()
-  findAll() {
-    return this.addressService.findAll();
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @Res() res: Response,
+    @GetUser('id') userId: number,
+    @Query() params: GetAddressDto,
+  ) {
+    const { page, limit } = params;
+    const { addresses, count } = await this.addressService.findAll(params);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'آدرس های کاربران با موفقیت دریافت شد.',
+      data: {
+        addresses,
+        pagination: createPagination(page, limit, count, 'Addresses'),
+      },
+    });
   }
 
   @Get(':id')
