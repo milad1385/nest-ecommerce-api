@@ -77,8 +77,18 @@ export class AddressService {
     return address;
   }
 
-  update(id: number, updateAddressDto: UpdateAddressDto) {
-    return `This action updates a #${id} address`;
+  async update(id: number, updateAddressDto: UpdateAddressDto) {
+    const address = await this.findOne(id);
+    const updatedAddress = await this.addressRepository.update(
+      id,
+      updateAddressDto,
+    );
+
+    if (updatedAddress.affected === 0) {
+      throw new BadRequestException('در هنگام آپدیت آدرس مشکلی ایجاد شد');
+    }
+
+    return await this.findOne(address.id);
   }
 
   async remove(id: number) {
