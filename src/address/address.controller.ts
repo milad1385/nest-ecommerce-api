@@ -12,7 +12,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { AddressService } from './address.service';
-import { CreateAddressDto, GetAddressDto } from './dto/create-address.dto';
+import {
+  CreateAddressDto,
+  GetAddressDto,
+  GetAddressIdDto,
+} from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import type { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -60,8 +64,14 @@ export class AddressController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.addressService.findOne(+id);
+  async findOne(@Res() res: Response, @Param() { id }: GetAddressIdDto) {
+    const address = await this.addressService.findOne(id);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'آدرس با موفقیت دریافت شد.',
+      data:address
+    });
   }
 
   @Patch(':id')
