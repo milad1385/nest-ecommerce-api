@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAddressDto, GetAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -77,7 +81,12 @@ export class AddressService {
     return `This action updates a #${id} address`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} address`;
+  async remove(id: number) {
+    const address = await this.findOne(id);
+    const deletedAddress = await this.addressRepository.delete(id);
+    if (deletedAddress.affected === 0) {
+      throw new BadRequestException('در هنگام حذف آدرس مشکلی ایجاد شد');
+    }
+    return address;
   }
 }
