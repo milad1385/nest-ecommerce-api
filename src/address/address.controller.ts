@@ -75,8 +75,20 @@ export class AddressController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAddressDto: UpdateAddressDto) {
-    return this.addressService.update(+id, updateAddressDto);
+  async update(
+    @Res() res: Response,
+    @Param() { id }: GetAddressIdDto,
+    @Body() updateAddressDto: UpdateAddressDto,
+  ) {
+    const updatedAddress = await this.addressService.update(
+      id,
+      updateAddressDto,
+    );
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'آدرس با موفقیت آپدیت شد',
+      data: updatedAddress,
+    });
   }
 
   @Delete(':id')
