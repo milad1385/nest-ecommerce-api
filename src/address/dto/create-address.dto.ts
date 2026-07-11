@@ -65,3 +65,12 @@ export class GetAddressDto {
   @Max(100, { message: 'حداکثر تعداد آیتم در هر صفحه 100 است' })
   limit: number = 10;
 }
+
+export class GetAddressIdDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'آیدی آدرس باید عدد صحیح باشد' })
+  @IsPositive({ message: 'آیدی آدرس باید بزرگتر از 0 باشد' })
+  @IsNumber({}, { message: 'آیدی آدرس باید عدد باشد' })
+  id: number;
+}
