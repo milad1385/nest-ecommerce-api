@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAddressDto, GetAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -51,8 +51,26 @@ export class AddressService {
     return { addresses, count };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} address`;
+  async findOne(id: number) {
+    const address = await this.addressRepository.findOne({
+      where: { id },
+      select: {
+        user: {
+          display_name: true,
+          username: true,
+          mobile: true,
+          email: true,
+          createdAt: true,
+        },
+      },
+      relations: {
+        user: true,
+      },
+    });
+    if (!address) {
+      throw new NotFoundException('آدرسی با این آیدی یافت نشد');
+    }
+    return address;
   }
 
   update(id: number, updateAddressDto: UpdateAddressDto) {
