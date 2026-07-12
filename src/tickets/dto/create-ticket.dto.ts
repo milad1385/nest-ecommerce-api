@@ -1,4 +1,11 @@
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { TicketStatusEnums } from '../enums/TicketStatusEnums';
 
 export class CreateTicketDto {
@@ -19,8 +26,12 @@ export class CreateTicketDto {
   @IsNotEmpty({ message: 'متن تیکت نمی تواند خالی باشد' })
   description: string;
 
- @IsEnum(TicketStatusEnums, {
+  @IsEnum(TicketStatusEnums, {
     message: 'وضعیت باید answered , pending , close باشد',
   })
-  status: TicketStatusEnums = TicketStatusEnums.PENDING
+  status: TicketStatusEnums = TicketStatusEnums.PENDING;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'آیدی تیکت رپلای باید عدد باشد' })
+  replyId: number;
 }
