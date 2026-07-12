@@ -64,3 +64,12 @@ export class GetTicketDto {
   @IsOptional()
   status: TicketStatusEnums;
 }
+
+export class GetTicketIdDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'شماره تیکت باید عدد صحیح باشد' })
+  @IsPositive({ message: 'شماره تیکت باید بزرگتر از 0 باشد' })
+  @IsNumber({}, { message: 'شماره تیکت باید عدد باشد' })
+  id: number;
+}
