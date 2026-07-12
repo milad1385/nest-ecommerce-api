@@ -91,6 +91,17 @@ export class UsersService {
       throw error;
     }
   }
+  async getUserAddress(userId): Promise<User | null> {
+    const user = await this.findOne(userId);
+    const userAddresses = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: {
+        addresses: true,
+      },
+    });
+
+    return userAddresses;
+  }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
