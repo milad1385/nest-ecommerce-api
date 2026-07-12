@@ -36,11 +36,13 @@ export class Ticket {
 
   @OneToMany(() => Ticket, (ticket) => ticket.reply, {
     nullable: true,
-    onDelete: 'CASCADE',
+    cascade: true,
   })
   replies: Ticket[];
 
-  @ManyToOne(() => Ticket, (ticket) => ticket.replies)
+  @ManyToOne(() => Ticket, (ticket) => ticket.replies, {
+    onDelete: 'CASCADE',
+  })
   reply: Ticket;
 
   @CreateDateColumn()
