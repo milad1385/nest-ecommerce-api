@@ -34,7 +34,8 @@ export class CreateTicketDto {
   @IsEnum(TicketStatusEnums, {
     message: 'وضعیت باید answered , pending , close باشد',
   })
-  status: TicketStatusEnums = TicketStatusEnums.PENDING;
+  @IsOptional()
+  status: TicketStatusEnums;
 
   @IsOptional()
   @IsNumber({}, { message: 'آیدی تیکت رپلای باید عدد باشد' })
