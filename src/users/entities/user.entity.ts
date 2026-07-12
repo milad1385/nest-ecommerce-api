@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { UserRoleEnums } from '../enums/userRoleEnums';
 import { Address } from 'src/address/entities/address.entity';
+import { Ticket } from 'src/tickets/entities/ticket.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -35,6 +36,9 @@ export class User {
   @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
 
+  @OneToMany(() => Ticket, (ticket) => ticket.user)
+  tickets : Ticket[]
+  
   @CreateDateColumn()
   createdAt: Date;
 
