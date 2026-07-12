@@ -75,7 +75,12 @@ export class TicketsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ticketsService.remove(+id);
+  async remove(@Res() res: Response, @Param() { id }: GetTicketIdDto) {
+    const deletedTicket = await this.ticketsService.remove(id);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'تیکت با موفقیت حذف شد',
+      data: deletedTicket,
+    });
   }
 }
