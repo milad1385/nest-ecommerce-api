@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTicketDto, GetTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -166,7 +170,14 @@ export class TicketsService {
     return `This action updates a #${id} ticket`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} ticket`;
+  async remove(id: number) {
+    const ticket = await this.findOne(id);
+    const deletedTicket = await this.ticketsRepository.delete(id);
+
+    if (deletedTicket.affected === 0) {
+      throw new BadRequestException('در هنگام حدف تیکت مشکلی ایجاد شد');
+    }
+
+    return ticket;
   }
 }
