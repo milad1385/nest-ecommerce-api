@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTicketDto } from './dto/create-ticket.dto';
+import { CreateTicketDto, GetTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -44,9 +44,67 @@ export class TicketsService {
 
     return await this.ticketsRepository.save(newTicket);
   }
+  async findAll({
+    page,
+    limit,
+    status,
+  }: GetTicketDto): Promise<{ tickets: Ticket[]; count: number }> {
+    const where: any = {
+      reply: IsNull(),
+    };
 
-  findAll() {
-    return `This action returns all tickets`;
+    if (status) {
+      where.status = status;
+    }
+
+    const count = await this.ticketsRepository.count({ where });
+
+    const tickets = await this.ticketsRepository.find({
+      where,
+      select: {
+        id: true,
+        title: true,
+        subject: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          display_name: true,
+          mobile: true,
+          role: true,
+          email: true,
+          username: true,
+        },
+        replies: {
+          id: true,
+          title: true,
+          subject: true,
+          status: true,
+          createdAt: true,
+          user: {
+            display_name: true,
+            mobile: true,
+            role: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+      relations: {
+        user: true,
+        replies: {
+          user: true,
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return { tickets, count };
   }
 
   findOne(id: number) {
