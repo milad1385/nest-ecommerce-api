@@ -24,7 +24,11 @@ export class Ticket {
   @Column()
   description: string;
 
-  @Column({ type :'enum',enum: TicketStatusEnums, default: TicketStatusEnums.PENDING })
+  @Column({
+    type: 'enum',
+    enum: TicketStatusEnums,
+    nullable: true,
+  })
   status: TicketStatusEnums;
 
   @ManyToOne(() => User, (user) => user.tickets)
