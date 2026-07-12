@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
+import { TicketStatusEnums } from './enums/TicketStatusEnums';
 
 @Injectable()
 export class TicketsService {
@@ -29,6 +30,9 @@ export class TicketsService {
       if (!replyTicket) {
         throw new NotFoundException('تیکت مورد نظر برای پاسخ یافت نشد');
       }
+      await this.ticketsRepository.update(replyTicket.id, {
+        status: TicketStatusEnums.ANSWERED,
+      });
     }
 
     const ticketData: Partial<Ticket> = {
