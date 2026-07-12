@@ -12,7 +12,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
-import { CreateTicketDto, GetTicketDto } from './dto/create-ticket.dto';
+import {
+  CreateTicketDto,
+  GetTicketDto,
+  GetTicketIdDto,
+} from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
@@ -56,8 +60,13 @@ export class TicketsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ticketsService.findOne(+id);
+  async findOne(@Res() res: Response, @Param() { id }: GetTicketIdDto) {
+    const ticket = await this.ticketsService.findOne(id);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'تیکت با موفقیت دریافت شد',
+      data: ticket,
+    });
   }
 
   @Patch(':id')
