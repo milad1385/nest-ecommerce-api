@@ -34,7 +34,10 @@ export class Ticket {
   @ManyToOne(() => User, (user) => user.tickets)
   user: User;
 
-  @OneToMany(() => Ticket, (ticket) => ticket.reply, { nullable: true })
+  @OneToMany(() => Ticket, (ticket) => ticket.reply, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   replies: Ticket[];
 
   @ManyToOne(() => Ticket, (ticket) => ticket.replies)
