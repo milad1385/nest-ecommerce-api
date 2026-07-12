@@ -10,12 +10,15 @@ import {
   HttpStatus,
   Query,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, GetUserDto, GetUserIdDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import type { Response } from 'express';
 import { createPagination } from 'utils/func';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -55,6 +58,17 @@ export class UsersController {
       statusCode: HttpStatus.OK,
       message: 'کاربر با موفقیت دریافت شد',
       data: user,
+    });
+  }
+
+  @Get('address/all')
+  @UseGuards(JwtAuthGuard)
+  async getUserAddress(@Res() res: Response, @GetUser('id') userId: number) {
+    const userAddresses = await this.usersService.getUserAddress(userId);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'آدرس های کاربر با موفقیت دریافت شد',
+      data: userAddresses?.addresses,
     });
   }
 
