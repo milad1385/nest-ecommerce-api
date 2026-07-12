@@ -9,14 +9,16 @@ import {
   UseGuards,
   Res,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
-import { CreateTicketDto } from './dto/create-ticket.dto';
+import { CreateTicketDto, GetTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import type { Response } from 'express';
+import { createPagination } from 'utils/func';
 
 @Controller('tickets')
 export class TicketsController {
@@ -39,8 +41,18 @@ export class TicketsController {
   }
 
   @Get()
-  findAll() {
-    return this.ticketsService.findAll();
+  async findAll(@Res() res: Response, @Query() getTicketDto: GetTicketDto) {
+    const { page, limit } = getTicketDto;
+    const { tickets, count } = await this.ticketsService.findAll(getTicketDto);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'تیکت ها با موفقیت دریافت شد',
+      data: {
+        tickets,
+        pagination: createPagination(page, limit, count, 'Tickets'),
+      },
+    });
   }
 
   @Get(':id')
