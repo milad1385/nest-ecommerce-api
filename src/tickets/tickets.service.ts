@@ -107,8 +107,55 @@ export class TicketsService {
     return { tickets, count };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ticket`;
+  async findOne(id: number) {
+    const ticket = await this.ticketsRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        subject: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          display_name: true,
+          mobile: true,
+          role: true,
+          email: true,
+          username: true,
+        },
+        replies: {
+          id: true,
+          title: true,
+          subject: true,
+          status: true,
+          createdAt: true,
+          user: {
+            display_name: true,
+            mobile: true,
+            role: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+      relations: {
+        user: true,
+        replies: {
+          user: true,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    if (!ticket) {
+      throw new NotFoundException('تیکت با این آیدی یافت نشد');
+    }
+
+    return ticket;
   }
 
   update(id: number, updateTicketDto: UpdateTicketDto) {
