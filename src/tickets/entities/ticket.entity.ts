@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { TicketStatusEnums } from '../enums/TicketStatusEnums';
 
 @Entity({ name: 'tickets' })
 export class Ticket {
@@ -22,6 +23,9 @@ export class Ticket {
 
   @Column()
   description: string;
+
+  @Column({ type :'enum',enum: TicketStatusEnums, default: TicketStatusEnums.PENDING })
+  status: TicketStatusEnums;
 
   @ManyToOne(() => User, (user) => user.tickets)
   user: User;
