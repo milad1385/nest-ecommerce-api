@@ -52,9 +52,12 @@ export class CategoriesController {
     });
   }
   @Get('all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async find(@Res() res: Response, @Query() getCategoryDto: GetCategoryDto) {
     const { page, limit } = getCategoryDto;
-    const { categories, count } = await this.categoriesService.find(getCategoryDto);
+    const { categories, count } =
+      await this.categoriesService.find(getCategoryDto);
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: 'دسته بندی ها با موفقیت دریافت شد',
