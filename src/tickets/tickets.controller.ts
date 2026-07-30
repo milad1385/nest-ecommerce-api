@@ -23,6 +23,9 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import type { Response } from 'express';
 import { createPagination } from 'utils/func';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 
 @Controller('tickets')
 export class TicketsController {
@@ -75,6 +78,8 @@ export class TicketsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async remove(@Res() res: Response, @Param() { id }: GetTicketIdDto) {
     const deletedTicket = await this.ticketsService.remove(id);
     return res.status(HttpStatus.OK).json({

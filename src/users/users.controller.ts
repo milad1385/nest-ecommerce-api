@@ -19,6 +19,9 @@ import type { Response } from 'express';
 import { createPagination } from 'utils/func';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRoleEnums } from './enums/userRoleEnums';
 
 @Controller('users')
 export class UsersController {
@@ -89,6 +92,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async remove(@Res() res: Response, @Param() params: GetUserIdDto) {
     const { id } = params;
     const deletedUser = await this.usersService.remove(id);
