@@ -103,6 +103,8 @@ export class CategoriesService {
 
   async remove(slug: string) {
     const category = await this.findOne(slug);
+    category.products = [];
+    await this.categoryRepository.save(category);
     return await this.categoryRepository.remove(category);
   }
 }
