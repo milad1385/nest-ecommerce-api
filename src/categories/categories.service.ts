@@ -91,8 +91,14 @@ export class CategoriesService {
     return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.categoryRepository.findOneBy({ id });
+    if (!category)
+      throw new NotFoundException(`دسته بندی با این آیدی ${id} یافت نشد`);
+
+    Object.assign(category, updateCategoryDto);
+
+    return this.categoryRepository.save(category);
   }
 
   async remove(slug: string) {
