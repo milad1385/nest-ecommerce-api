@@ -19,7 +19,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
-import { GetCategoryDto } from './dto/get-category.dto';
+import { GetCategoryDto, GetCategorySlugDto } from './dto/get-category.dto';
 import { createPagination } from 'utils/func';
 
 @Controller('categories')
@@ -68,9 +68,14 @@ export class CategoriesController {
     });
   }
 
-  @Get(':id')
-  findOne(@Param('slug') slug: string) {
-    return this.categoriesService.findOne(slug);
+  @Get(':slug')
+  async findOne(@Res() res: Response, @Param() { slug }: GetCategorySlugDto) {
+    const category = await this.categoriesService.findOne(slug);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'دسته بندی با موفقیت دریافت شد',
+      data: category,
+    });
   }
 
   @Patch(':id')
