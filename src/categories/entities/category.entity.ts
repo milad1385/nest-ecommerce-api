@@ -1,8 +1,10 @@
+import { Proudct } from 'src/proudcts/entities/proudct.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   Index,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -31,6 +33,9 @@ export class Category {
 
   @ManyToOne(() => Category, (category) => category.categories)
   parent: Category | null;
+
+  @ManyToMany(() => Proudct, (product) => product.categories)
+  products: Proudct[];
 
   @CreateDateColumn()
   created_at: Date;
