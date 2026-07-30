@@ -86,8 +86,14 @@ export class CategoriesController {
     return this.categoriesService.update(+id, updateCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  @Delete(':slug')
+  async remove(@Res() res: Response, @Param() { slug }: GetCategorySlugDto) {
+    const category = await this.categoriesService.remove(slug);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'دسته بندی با موفقیت حذف شد',
+      data: category,
+    });
   }
 }
