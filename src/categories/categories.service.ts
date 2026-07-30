@@ -16,12 +16,30 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const category = await this.findOne(createCategoryDto.slug);
+    const { slug, parentId } = createCategoryDto;
+    const category = await this.categoryRepository.findOneBy({
+      slug,
+    });
     if (category) {
       throw new BadRequestException('دسته بندی با این مشخصات وجود دارد');
     }
 
-    const newCategory = this.categoryRepository.create(createCategoryDto);
+    let parentCategory: Category | null = null;
+    if (parentId) {
+      parentCategory = await this.categoryRepository.findOneBy({
+        id: parentId,
+      });
+      if (!parentCategory) {
+        throw new NotFoundException(
+          `دسته بندی پرنت با این آیدی ${parentId} یافت نشد`,
+        );
+      }
+    }
+
+    const newCategory = this.categoryRepository.create({
+      ...createCategoryDto,
+      parent: parentCategory,
+    });
 
     return await this.categoryRepository.save(newCategory);
   }
