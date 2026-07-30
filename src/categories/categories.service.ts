@@ -8,6 +8,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { IsNull, Repository } from 'typeorm';
+import { GetCategoryDto } from './dto/get-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -56,6 +57,29 @@ export class CategoriesService {
       where: { parent: IsNull() },
     });
     return categories;
+  }
+
+  async find({
+    page,
+    limit,
+  }: GetCategoryDto): Promise<{ categories: Category[]; count: number }> {
+    const count = await this.categoryRepository.count({
+      where: { parent: IsNull() },
+    });
+    const categories = await this.categoryRepository.find({
+      relations: {
+        categories: {
+          categories: {
+            categories: true,
+          },
+        },
+      },
+      where: { parent: IsNull() },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    return { categories, count };
   }
 
   async findOne(slug: string) {
