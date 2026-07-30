@@ -95,7 +95,8 @@ export class CategoriesService {
     return `This action updates a #${id} category`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(slug: string) {
+    const category = await this.findOne(slug);
+    return await this.categoryRepository.remove(category);
   }
 }
