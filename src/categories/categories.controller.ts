@@ -36,8 +36,13 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll(@Res() res: Response) {
+    const categories = await this.categoriesService.findAll();
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'دسته بندی ها با موفقیت دریافت شد',
+      data: categories,
+    });
   }
 
   @Get(':id')
