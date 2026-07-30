@@ -1,10 +1,13 @@
 import { Type } from 'class-transformer';
 import {
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
+  IsString,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
 
@@ -25,4 +28,13 @@ export class GetCategoryDto {
   @Min(1, { message: 'حداقل تعداد آیتم در هر صفحه 1 است' })
   @Max(100, { message: 'حداکثر تعداد آیتم در هر صفحه 100 است' })
   limit: number = 10;
+}
+
+export class GetCategorySlugDto {
+  @MaxLength(150, {
+    message: 'اسلاگ دسته بندی بیشتر از 150 کاراکتر نباید باشد',
+  })
+  @IsString({ message: 'اسلاگ دسته بندی باید رشته باشد' })
+  @IsNotEmpty({ message: 'اسلاگ دسته بندی را وارد کنید' })
+  slug: string;
 }
