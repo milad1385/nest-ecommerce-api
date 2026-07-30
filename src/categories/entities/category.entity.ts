@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'category' })
+@Entity({ name: 'categories' })
 export class Category {
   @PrimaryGeneratedColumn('increment')
   id: number;
@@ -15,9 +17,20 @@ export class Category {
   @Column({ unique: true })
   title: string;
 
-  @Index()
   @Column({ unique: true })
   slug: string;
+
+  @Column()
+  description: string;
+
+  @OneToMany(() => Category, (category) => category.parent, {
+    nullable: true,
+    cascade: true,
+  })
+  categories: Category[];
+
+  @ManyToOne(() => Category, (category) => category.categories)
+  parent: Category | null;
 
   @CreateDateColumn()
   created_at: Date;
