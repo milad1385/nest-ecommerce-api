@@ -8,17 +8,24 @@ import {
   Delete,
   Res,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ProudctsService } from './proudcts.service';
 import { CreateProudctDto } from './dto/create-proudct.dto';
 import { UpdateProudctDto } from './dto/update-proudct.dto';
 import type { Response } from 'express';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 
 @Controller('proudcts')
 export class ProudctsController {
   constructor(private readonly proudctsService: ProudctsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async create(
     @Res() res: Response,
     @Body() createProudctDto: CreateProudctDto,
