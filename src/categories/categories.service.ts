@@ -7,7 +7,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
@@ -44,8 +44,18 @@ export class CategoriesService {
     return await this.categoryRepository.save(newCategory);
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll() {
+    const categories = await this.categoryRepository.find({
+      relations: {
+        categories: {
+          categories: {
+            categories: true,
+          },
+        },
+      },
+      where: { parent: IsNull() },
+    });
+    return categories;
   }
 
   async findOne(slug: string) {
