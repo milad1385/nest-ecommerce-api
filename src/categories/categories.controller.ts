@@ -79,6 +79,8 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async update(
     @Res() res: Response,
     @Param('id') id: string,
@@ -96,6 +98,8 @@ export class CategoriesController {
   }
 
   @Delete(':slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async remove(@Res() res: Response, @Param() { slug }: GetCategorySlugDto) {
     const category = await this.categoriesService.remove(slug);
 
