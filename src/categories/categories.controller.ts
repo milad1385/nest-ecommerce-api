@@ -79,11 +79,20 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  update(
+  async update(
+    @Res() res: Response,
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    const category = await this.categoriesService.update(
+      +id,
+      updateCategoryDto,
+    );
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'دسته بندی با موفقیت آپدیت شد',
+      data: category,
+    });
   }
 
   @Delete(':slug')
