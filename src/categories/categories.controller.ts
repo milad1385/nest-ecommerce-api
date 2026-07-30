@@ -9,6 +9,7 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -18,6 +19,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
+import { GetCategoryDto } from './dto/get-category.dto';
+import { createPagination } from 'utils/func';
 
 @Controller('categories')
 export class CategoriesController {
@@ -46,6 +49,19 @@ export class CategoriesController {
       statusCode: HttpStatus.OK,
       message: 'دسته بندی ها با موفقیت دریافت شد',
       data: categories,
+    });
+  }
+  @Get('all')
+  async find(@Res() res: Response, @Query() getCategoryDto: GetCategoryDto) {
+    const { page, limit } = getCategoryDto;
+    const { categories, count } = await this.categoriesService.find(getCategoryDto);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'دسته بندی ها با موفقیت دریافت شد',
+      data: {
+        categories,
+        pagination: createPagination(page, limit, count, 'Categories'),
+      },
     });
   }
 
