@@ -3,22 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateProudctDto } from './dto/create-proudct.dto';
-import { UpdateProudctDto } from './dto/update-proudct.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Proudct } from './entities/proudct.entity';
+import { Category } from 'src/categories/entities/category.entity';
 import {
-  Between,
   Brackets,
   In,
-  LessThanOrEqual,
-  Like,
-  MoreThan,
-  MoreThanOrEqual,
-  Repository,
+  Repository
 } from 'typeorm';
-import { Category } from 'src/categories/entities/category.entity';
+import { CreateProudctDto } from './dto/create-proudct.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
+import { UpdateProudctDto } from './dto/update-proudct.dto';
+import { Proudct } from './entities/proudct.entity';
 
 @Injectable()
 export class ProudctsService {
