@@ -20,6 +20,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { FilterProductDto } from './dto/filter-product.dto';
+import { createPagination } from 'utils/func';
 
 @Controller('proudcts')
 export class ProudctsController {
@@ -43,13 +44,16 @@ export class ProudctsController {
 
   @Get()
   async findAll(@Res() res: Response, @Query() filterDto: FilterProductDto) {
-    const result = await this.proudctsService.findAll(filterDto);
+    const { page, limit } = filterDto;
+    const { items, count } = await this.proudctsService.findAll(filterDto);
 
     return res.status(HttpStatus.OK).json({
       statusCode: 200,
       message: 'محصولات با موفقیت دریافت شدند',
-      data: result.items,
-      meta: result.meta,
+      data: {
+        products: items,
+        pagination: createPagination(page, limit, count, 'Products'),
+      },
     });
   }
 
@@ -68,7 +72,6 @@ export class ProudctsController {
       statusCode: 200,
       message: `محصولات دسته‌بندی "${slug}" با موفقیت دریافت شدند`,
       data: result.items,
-      meta: result.meta,
     });
   }
 
