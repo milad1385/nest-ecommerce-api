@@ -9,6 +9,7 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProudctsService } from './proudcts.service';
 import { CreateProudctDto } from './dto/create-proudct.dto';
@@ -18,6 +19,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
+import { FilterProductDto } from './dto/filter-product.dto';
 
 @Controller('proudcts')
 export class ProudctsController {
@@ -40,13 +42,45 @@ export class ProudctsController {
   }
 
   @Get()
-  findAll() {
-    return this.proudctsService.findAll();
+  async findAll(@Res() res: Response, @Query() filterDto: FilterProductDto) {
+    const result = await this.proudctsService.findAll(filterDto);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: 200,
+      message: 'محصولات با موفقیت دریافت شدند',
+      data: result.items,
+      meta: result.meta,
+    });
   }
 
-  @Get(':id')
-  findOne(@Param('slug') slug: string) {
-    return this.proudctsService.findOne(slug);
+  @Get('category/:slug')
+  async findByCategorySlug(
+    @Res() res: Response,
+    @Param('slug') slug: string,
+    @Query() filterDto: FilterProductDto,
+  ) {
+    const result = await this.proudctsService.findByCategorySlug(
+      slug,
+      filterDto,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: 200,
+      message: `محصولات دسته‌بندی "${slug}" با موفقیت دریافت شدند`,
+      data: result.items,
+      meta: result.meta,
+    });
+  }
+
+  @Get(':slug')
+  async findOne(@Param('slug') slug: string) {
+    const product = await this.proudctsService.findOneBySlug(slug);
+
+    return {
+      statusCode: 200,
+      message: 'محصول با موفقیت دریافت شد',
+      data: product,
+    };
   }
 
   @Patch(':id')
