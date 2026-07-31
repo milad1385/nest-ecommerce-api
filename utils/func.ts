@@ -9,5 +9,7 @@ export const createPagination = (
     limit,
     totalPage: Math.ceil(totalCount / limit),
     ['total' + resourceName]: totalCount,
+    hasNext: page < Math.ceil(Math.ceil(totalCount / limit) / limit),
+    hasPrevious: page > 1,
   };
 };
