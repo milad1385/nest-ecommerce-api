@@ -52,7 +52,9 @@ export class ProudctsService {
     return await this.productRepository.save(newProduct);
   }
 
-  async findAll(filterDto: any) {
+  async findAll(
+    filterDto: FilterProductDto,
+  ): Promise<{ items: Proudct[]; count: number }> {
     const {
       page = 1,
       limit = 10,
@@ -67,92 +69,54 @@ export class ProudctsService {
       sortOrder = 'DESC',
     } = filterDto;
 
-    let where: any = {};
+    const qb = this.productRepository
+      .createQueryBuilder('products')
+      .leftJoinAndSelect('products.categories', 'categories');
 
     if (search) {
-      where = [
-        { title: Like(`%${search}%`) },
-        { shortDescription: Like(`%${search}%`) },
-        { description: Like(`%${search}%`) },
-      ];
-    }
-    if (minPrice !== undefined || maxPrice !== undefined) {
-      if (minPrice !== undefined && maxPrice !== undefined) {
-        const priceFilter = Between(Number(minPrice), Number(maxPrice));
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, price: priceFilter }));
-        } else {
-          where.price = priceFilter;
-        }
-      } else if (minPrice !== undefined) {
-        const priceFilter = MoreThanOrEqual(Number(minPrice));
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, price: priceFilter }));
-        } else {
-          where.price = priceFilter;
-        }
-      } else if (maxPrice !== undefined) {
-        const priceFilter = LessThanOrEqual(Number(maxPrice));
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, price: priceFilter }));
-        } else {
-          where.price = priceFilter;
-        }
-      }
+      qb.andWhere(
+        new Brackets((qb) => {
+          qb.where('products.title LIKE :search')
+            .orWhere('products.shortDescription LIKE :search')
+            .orWhere('products.description LIKE :search');
+        }),
+        { search: `%${search}%` },
+      );
     }
 
-    if (inStock !== undefined) {
-      const stockFilter =
-        inStock === 'true' || inStock === true ? MoreThan(0) : 0;
+    if (minPrice) {
+      qb.andWhere('products.price >= :minPrice', {
+        minPrice: Number(minPrice),
+      });
+    }
+    if (maxPrice) {
+      qb.andWhere('products.price <= :maxPrice', {
+        maxPrice: Number(maxPrice),
+      });
+    }
 
-      if (Array.isArray(where)) {
-        where = where.map((w) => ({ ...w, stock: stockFilter }));
+    if (inStock) {
+      if (inStock === true) {
+        qb.andWhere('products.stock > 0');
       } else {
-        where.stock = stockFilter;
+        qb.andWhere('products.stock = 0');
       }
     }
 
-    if (createdFrom || createdTo) {
-      if (createdFrom && createdTo) {
-        const fromDate = new Date(createdFrom);
-        fromDate.setHours(0, 0, 0, 0);
+    if (createdFrom) {
+      const fromDate = new Date(createdFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      qb.andWhere('products.created_at >= :createdFrom', {
+        createdFrom: fromDate,
+      });
+    }
 
-        const toDate = new Date(createdTo);
-        toDate.setHours(23, 59, 59, 999);
-
-        const dateFilter = Between(fromDate, toDate);
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, created_at: dateFilter }));
-        } else {
-          where.created_at = dateFilter;
-        }
-      } else if (createdFrom) {
-        const fromDate = new Date(createdFrom);
-        fromDate.setHours(0, 0, 0, 0);
-
-        const dateFilter = MoreThanOrEqual(fromDate);
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, created_at: dateFilter }));
-        } else {
-          where.created_at = dateFilter;
-        }
-      } else if (createdTo) {
-        const toDate = new Date(createdTo);
-        toDate.setHours(23, 59, 59, 999);
-
-        const dateFilter = LessThanOrEqual(toDate);
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, created_at: dateFilter }));
-        } else {
-          where.created_at = dateFilter;
-        }
-      }
+    if (createdTo) {
+      const toDate = new Date(createdTo);
+      toDate.setHours(23, 59, 59, 999);
+      qb.andWhere('products.created_at <= :createdTo', {
+        createdTo: toDate,
+      });
     }
 
     if (categorySlugs && categorySlugs.length > 0) {
@@ -160,83 +124,45 @@ export class ProudctsService {
         ? categorySlugs
         : [categorySlugs];
 
-      const categories = await this.categoryRepository.find({
-        where: { slug: In(slugs) },
-      });
+      const categories = await this.categoryRepository
+        .createQueryBuilder('category')
+        .where('category.slug IN (:...slugs)', { slugs })
+        .getMany();
 
       if (categories.length > 0) {
         const categoryIds = categories.map((c) => c.id);
-
-        const productIdsWithCategories = await this.productRepository
-          .createQueryBuilder('p')
-          .leftJoin('p.categories', 'c')
-          .where('c.id IN (:...categoryIds)', { categoryIds })
-          .select('p.id')
-          .getMany();
-
-        const productIds = productIdsWithCategories.map((p) => p.id);
-
-        if (productIds.length === 0) {
-          return {
-            items: [],
-            meta: {
-              total: 0,
-              page,
-              limit,
-              totalPages: 0,
-              hasNext: false,
-              hasPrevious: false,
-            },
-          };
-        }
-
-        if (Array.isArray(where)) {
-          where = where.map((w) => ({ ...w, id: In(productIds) }));
-        } else {
-          where.id = In(productIds);
-        }
+        qb.andWhere(
+          `EXISTS (
+                        SELECT 1 
+                        FROM product_category pc 
+                        WHERE pc.product_id = products.id 
+                        AND pc.category_id IN (:...categoryIds)
+                    )`,
+          { categoryIds },
+        );
       } else {
         return {
           items: [],
-          meta: {
-            total: 0,
-            page,
-            limit,
-            totalPages: 0,
-            hasNext: false,
-            hasPrevious: false,
-          },
+          count: 0,
         };
       }
     }
 
-    const [items, total] = await this.productRepository.findAndCount({
-      where,
-      relations: { categories: true },
-      order: {
-        [sortField]: sortOrder,
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    qb.orderBy(`products.${sortField}`, sortOrder);
 
-    return {
-      items,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        hasNext: page < Math.ceil(total / limit),
-        hasPrevious: page > 1,
-      },
-    };
+    const skip = (page - 1) * limit;
+    qb.skip(skip).take(limit);
+
+    const [items, count] = await qb.getManyAndCount();
+
+    return { items, count };
   }
 
-  async findByCategorySlug(slug: string, filterDto: any) {
-    const category = await this.categoryRepository.findOne({
-      where: { slug },
-    });
+  async findByCategorySlug(slug: string, filterDto: FilterProductDto) {
+    const category = await this.categoryRepository
+      .createQueryBuilder('category')
+      .where('category.slug = :slug', { slug })
+      .getOne();
 
     if (!category) {
       throw new BadRequestException(`دسته‌بندی با اسلاگ "${slug}" یافت نشد`);
@@ -249,10 +175,11 @@ export class ProudctsService {
   }
 
   async findOneBySlug(slug: string): Promise<Proudct> {
-    const product = await this.productRepository.findOne({
-      where: { slug },
-      relations: { categories: true },
-    });
+    const product = await this.productRepository
+      .createQueryBuilder('products')
+      .leftJoinAndSelect('products.categories', 'categories')
+      .where('products.slug = :slug', { slug })
+      .getOne();
 
     if (!product) {
       throw new BadRequestException('محصول یافت نشد');
@@ -260,6 +187,7 @@ export class ProudctsService {
 
     return product;
   }
+
   async findOne(slug: string) {
     const product = await this.productRepository.findOneBy({ slug });
     if (!product) {
