@@ -67,10 +67,8 @@ export class ProudctsService {
       sortOrder = 'DESC',
     } = filterDto;
 
-    // ========== ۱. ساخت where ==========
     let where: any = {};
 
-    // ========== ۲. جستجو (با OR) ==========
     if (search) {
       where = [
         { title: Like(`%${search}%`) },
@@ -78,8 +76,6 @@ export class ProudctsService {
         { description: Like(`%${search}%`) },
       ];
     }
-
-    // ========== ۳. فیلتر قیمت ==========
     if (minPrice !== undefined || maxPrice !== undefined) {
       if (minPrice !== undefined && maxPrice !== undefined) {
         const priceFilter = Between(Number(minPrice), Number(maxPrice));
@@ -108,7 +104,6 @@ export class ProudctsService {
       }
     }
 
-    // ========== ۴. فیلتر موجودی ==========
     if (inStock !== undefined) {
       const stockFilter =
         inStock === 'true' || inStock === true ? MoreThan(0) : 0;
@@ -253,7 +248,6 @@ export class ProudctsService {
     });
   }
 
-  // ========== دریافت یک محصول با اسلاگ ==========
   async findOneBySlug(slug: string): Promise<Proudct> {
     const product = await this.productRepository.findOne({
       where: { slug },
