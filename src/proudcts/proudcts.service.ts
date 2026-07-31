@@ -105,7 +105,6 @@ export class ProudctsService {
 
     if (createdFrom) {
       const fromDate = new Date(createdFrom);
-      fromDate.setHours(0, 0, 0, 0);
       qb.andWhere('products.created_at >= :createdFrom', {
         createdFrom: fromDate,
       });
@@ -113,7 +112,6 @@ export class ProudctsService {
 
     if (createdTo) {
       const toDate = new Date(createdTo);
-      toDate.setHours(23, 59, 59, 999);
       qb.andWhere('products.created_at <= :createdTo', {
         createdTo: toDate,
       });
