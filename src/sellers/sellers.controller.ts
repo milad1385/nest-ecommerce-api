@@ -74,7 +74,15 @@ export class SellersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sellersService.remove(+id);
+  async remove(@Res() res: Response, @Param('id') id: string) {
+    const seller = await this.sellersService.remove(+id);
+
+    return res
+      .status(HttpStatus.OK)
+      .json({
+        statusCode: HttpStatus.OK,
+        message: 'فروشنده با موفقیت حذف شد',
+        data: seller,
+      });
   }
 }
