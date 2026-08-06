@@ -103,7 +103,12 @@ export class SellersService {
       relations: { user: true },
       select: {
         user: {
-          password: false,
+          id: true,
+          display_name: true,
+          email: true,
+          mobile: true,
+          username: true,
+          createdAt: true,
         },
       },
     });
@@ -119,7 +124,15 @@ export class SellersService {
     return `This action updates a #${id} seller`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} seller`;
+  async remove(id: number) {
+    const seller = await this.findOne(id);
+    console.log(seller);
+
+    const deletedSeller = await this.sellerRepository.delete(id);
+    if (deletedSeller.affected === 0) {
+      throw new BadRequestException('هنگام حذف فروشنده مشکلی به وجود آمد');
+    }
+
+    return seller;
   }
 }
