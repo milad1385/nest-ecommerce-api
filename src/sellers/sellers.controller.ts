@@ -9,6 +9,7 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { SellersService } from './sellers.service';
 import { CreateSellerDto } from './dto/create-seller.dto';
@@ -16,6 +17,8 @@ import { UpdateSellerDto } from './dto/update-seller.dto';
 import type { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { GetSellerDto } from './dto/get-seller.dto';
+import { createPagination } from 'utils/func';
 
 @Controller('sellers')
 export class SellersController {
@@ -40,8 +43,18 @@ export class SellersController {
   }
 
   @Get()
-  findAll() {
-    return this.sellersService.findAll();
+  async findAll(@Res() res: Response, @Query() sellerDto: GetSellerDto) {
+    const { page, limit } = sellerDto;
+    const { sellers, count } = await this.sellersService.findAll(sellerDto);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'فروشندگان با موفقیت دریافت شد',
+      data: {
+        sellers,
+        pagination: createPagination(page, limit, count, 'Sellers'),
+      },
+    });
   }
 
   @Get(':id')
