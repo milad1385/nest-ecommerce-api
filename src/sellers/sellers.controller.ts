@@ -75,7 +75,6 @@ export class SellersController {
     @Param('id') id: string,
     @Body() updateSellerDto: UpdateSellerDto,
     @GetUser('id') userId: number,
-    @GetUser('role') userRole: string,
   ) {
     console.log(userId);
 
@@ -83,7 +82,6 @@ export class SellersController {
       +id,
       updateSellerDto,
       userId,
-      userRole,
     );
 
     return res.status(HttpStatus.OK).json({

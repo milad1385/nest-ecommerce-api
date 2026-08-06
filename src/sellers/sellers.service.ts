@@ -121,17 +121,12 @@ export class SellersService {
     return seller;
   }
 
-  async update(
-    id: number,
-    updateSellerDto: UpdateSellerDto,
-    userId: number,
-    userRole: string,
-  ) {
+  async update(id: number, updateSellerDto: UpdateSellerDto, userId: number) {
     const seller = await this.findOne(id);
 
-    if (userId !== seller.user.id || userRole !== 'admin') {
+    if (userId !== seller.user.id) {
       throw new ForbiddenException(
-        'فقط خود فروشنده یا ادمین می تواند اطلاعات را ویرایش کند',
+        'فقط خود فروشنده می تواند اطلاعات را ویرایش کند',
       );
     }
 
