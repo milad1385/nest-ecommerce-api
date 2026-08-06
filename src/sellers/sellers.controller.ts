@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  Put,
 } from '@nestjs/common';
 import { SellersService } from './sellers.service';
 import { CreateSellerDto } from './dto/create-seller.dto';
@@ -19,6 +20,10 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { GetSellerDto } from './dto/get-seller.dto';
 import { createPagination } from 'utils/func';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UpdateSellerStatusDto } from './dto/update-seller-status.dto';
 
 @Controller('sellers')
 export class SellersController {
@@ -68,7 +73,7 @@ export class SellersController {
     });
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(JwtAuthGuard)
   async update(
     @Res() res: Response,
@@ -76,8 +81,6 @@ export class SellersController {
     @Body() updateSellerDto: UpdateSellerDto,
     @GetUser('id') userId: number,
   ) {
-    console.log(userId);
-
     const seller = await this.sellersService.update(
       +id,
       updateSellerDto,
@@ -91,7 +94,26 @@ export class SellersController {
     });
   }
 
+  @Patch(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
+  async updateStatus(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateSellerStatusDto,
+  ) {
+    const seller = await this.sellersService.updateStatus(+id, updateStatusDto);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'وضعیت فروشنده با موفقیت تغییر یافت',
+      data: seller,
+    });
+  }
+
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async remove(@Res() res: Response, @Param('id') id: string) {
     const seller = await this.sellersService.remove(+id);
 
