@@ -1,0 +1,92 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateSellerDto } from './dto/create-seller.dto';
+import { UpdateSellerDto } from './dto/update-seller.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Seller } from './entities/seller.entity';
+import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
+
+@Injectable()
+export class SellersService {
+  constructor(
+    @InjectRepository(Seller)
+    private readonly sellerRepository: Repository<Seller>,
+    private readonly usersService: UsersService,
+  ) {}
+  async create(createSellerDto: CreateSellerDto) {
+    const user = await this.usersService.findOne(createSellerDto.userId);
+
+    const seller = await this.sellerRepository.findOne({
+      where: {
+        user: {
+          id: createSellerDto.userId,
+        },
+      },
+    });
+
+    if (seller) {
+      throw new BadRequestException(
+        'فروشنده ای با این اطلاعات کاربری وجود دارد',
+      );
+    }
+
+    const emailExists = await this.sellerRepository.findOne({
+      where: { email: createSellerDto.email },
+    });
+
+    if (emailExists) {
+      throw new BadRequestException(
+        'این ایمیل قبلاً توسط فروشنده دیگری ثبت شده است',
+      );
+    }
+
+    const phoneExists = await this.sellerRepository.findOne({
+      where: { phone: createSellerDto.phone },
+    });
+
+    if (phoneExists) {
+      throw new BadRequestException(
+        'این شماره تلفن قبلاً توسط فروشنده دیگری ثبت شده است',
+      );
+    }
+
+    const newSeller = this.sellerRepository.create({
+      ...createSellerDto,
+      user,
+    });
+
+    return await this.sellerRepository.save(newSeller);
+  }
+
+  findAll() {}
+
+  async findOne(id: number) {
+    const seller = await this.sellerRepository.findOne({
+      where: { id },
+      relations: { user: true },
+      select: {
+        user: {
+          password: false,
+        },
+      },
+    });
+
+    if (!seller) {
+      throw new NotFoundException(`فروشنده ای با این آیدی ${id} یافت نشد`);
+    }
+
+    return seller;
+  }
+
+  update(id: number, updateSellerDto: UpdateSellerDto) {
+    return `This action updates a #${id} seller`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} seller`;
+  }
+}
