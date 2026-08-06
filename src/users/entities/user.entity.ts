@@ -2,13 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRoleEnums } from '../enums/userRoleEnums';
 import { Address } from 'src/address/entities/address.entity';
 import { Ticket } from 'src/tickets/entities/ticket.entity';
+import { Seller } from 'src/sellers/entities/seller.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -37,8 +40,12 @@ export class User {
   addresses: Address[];
 
   @OneToMany(() => Ticket, (ticket) => ticket.user)
-  tickets : Ticket[]
-  
+  tickets: Ticket[];
+
+  @OneToOne(() => Seller, (seller) => seller.user)
+  @JoinColumn()
+  seller: Seller;
+
   @CreateDateColumn()
   createdAt: Date;
 
