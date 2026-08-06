@@ -69,20 +69,38 @@ export class SellersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSellerDto: UpdateSellerDto) {
-    return this.sellersService.update(+id, updateSellerDto);
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() updateSellerDto: UpdateSellerDto,
+    @GetUser('id') userId: number,
+    @GetUser('role') userRole: string,
+  ) {
+    console.log(userId);
+
+    const seller = await this.sellersService.update(
+      +id,
+      updateSellerDto,
+      userId,
+      userRole,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'فروشنده با موفقیت آپدیت شد',
+      data: seller,
+    });
   }
 
   @Delete(':id')
   async remove(@Res() res: Response, @Param('id') id: string) {
     const seller = await this.sellersService.remove(+id);
 
-    return res
-      .status(HttpStatus.OK)
-      .json({
-        statusCode: HttpStatus.OK,
-        message: 'فروشنده با موفقیت حذف شد',
-        data: seller,
-      });
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'فروشنده با موفقیت حذف شد',
+      data: seller,
+    });
   }
 }
