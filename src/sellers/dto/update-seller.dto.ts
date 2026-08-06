@@ -59,19 +59,4 @@ export class UpdateSellerDto {
     message: 'نام استان نباید بیشتر از ۵۰ کاراکتر باشد',
   })
   province?: string;
-
-  @IsOptional()
-  @IsNumber(
-    {},
-    {
-      message: 'شناسه کاربر باید عدد باشد',
-    },
-  )
-  @Min(1, {
-    message: 'شناسه کاربر معتبر نیست',
-  })
-  userId?: number;
-
-  @IsOptional()
-  userRole?: string;
 }
