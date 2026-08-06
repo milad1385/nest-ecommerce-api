@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -120,8 +121,23 @@ export class SellersService {
     return seller;
   }
 
-  update(id: number, updateSellerDto: UpdateSellerDto) {
-    return `This action updates a #${id} seller`;
+  async update(
+    id: number,
+    updateSellerDto: UpdateSellerDto,
+    userId: number,
+    userRole: string,
+  ) {
+    const seller = await this.findOne(id);
+
+    if (userId !== seller.user.id || userRole !== 'admin') {
+      throw new ForbiddenException(
+        'فقط خود فروشنده یا ادمین می تواند اطلاعات را ویرایش کند',
+      );
+    }
+
+    Object.assign(seller, updateSellerDto);
+
+    return await this.sellerRepository.save(seller);
   }
 
   async remove(id: number) {
