@@ -11,6 +11,7 @@ import { Seller } from './entities/seller.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { GetSellerDto } from './dto/get-seller.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class SellersService {
@@ -122,6 +123,7 @@ export class SellersService {
   }
 
   async update(id: number, updateSellerDto: UpdateSellerDto, userId: number) {
+    const { province, email, name, phone, postal_code } = updateSellerDto;
     const seller = await this.findOne(id);
 
     if (userId !== seller.user.id) {
@@ -129,10 +131,15 @@ export class SellersService {
         'فقط خود فروشنده می تواند اطلاعات را ویرایش کند',
       );
     }
+    if (name) seller.name = name;
+    if (phone) seller.phone = phone;
+    if (email) seller.email = email;
+    if (postal_code) seller.postal_code = postal_code;
+    if (province) seller.province = province;
 
-    Object.assign(seller, updateSellerDto);
+    await this.sellerRepository.save(seller);
 
-    return await this.sellerRepository.save(seller);
+    return await this.findOne(id);
   }
 
   async remove(id: number) {

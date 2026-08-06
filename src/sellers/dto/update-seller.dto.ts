@@ -1,15 +1,13 @@
 import {
-  IsEmail,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  MaxLength,
-  Min,
-  MinLength,
+    IsEmail,
+    IsNumber,
+    IsOptional,
+    IsPhoneNumber,
+    IsString,
+    MaxLength,
+    Min,
+    MinLength
 } from 'class-validator';
-import { SellerStatusEnums } from '../enums/sellerStatusEnums.enum';
 
 export class UpdateSellerDto {
   @IsOptional()
