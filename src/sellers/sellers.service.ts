@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Seller } from './entities/seller.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
+import { GetSellerDto } from './dto/get-seller.dto';
 
 @Injectable()
 export class SellersService {
@@ -62,7 +63,39 @@ export class SellersService {
     return await this.sellerRepository.save(newSeller);
   }
 
-  findAll() {}
+  async findAll({
+    page = 1,
+    limit = 10,
+    status,
+  }: GetSellerDto): Promise<{ sellers: Seller[]; count: number }> {
+    let where: any = {};
+    if (status) {
+      where.status = status;
+    }
+    const count = await this.sellerRepository.count({});
+    const sellers = await this.sellerRepository.find({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: {
+        user: true,
+      },
+      select: {
+        user: {
+          id: true,
+          display_name: true,
+          email: true,
+          mobile: true,
+          createdAt: true,
+        },
+      },
+    });
+
+    return {
+      sellers,
+      count,
+    };
+  }
 
   async findOne(id: number) {
     const seller = await this.sellerRepository.findOne({
