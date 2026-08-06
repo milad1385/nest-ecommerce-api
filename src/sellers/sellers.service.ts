@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { GetSellerDto } from './dto/get-seller.dto';
 import { plainToInstance } from 'class-transformer';
+import { UpdateSellerStatusDto } from './dto/update-seller-status.dto';
 
 @Injectable()
 export class SellersService {
@@ -140,6 +141,26 @@ export class SellersService {
     await this.sellerRepository.save(seller);
 
     return await this.findOne(id);
+  }
+
+  async updateStatus(id: number, updateStatusDto: UpdateSellerStatusDto) {
+    const seller = await this.findOne(id);
+
+    seller.status = updateStatusDto.status;
+
+    const updatedSeller = await this.sellerRepository.save(seller);
+
+    return await this.sellerRepository.findOne({
+      where: { id: updatedSeller.id },
+      relations: { user: true },
+      select: {
+        user: {
+          username: true,
+          display_name: true,
+          email: true,
+        },
+      },
+    });
   }
 
   async remove(id: number) {
