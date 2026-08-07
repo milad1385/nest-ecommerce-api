@@ -8,6 +8,7 @@ import { TicketsModule } from './tickets/tickets.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProudctsModule } from './proudcts/proudcts.module';
 import { SellersModule } from './sellers/sellers.module';
+import { SellersRequestsModule } from './sellers-requests/sellers-requests.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,7 +30,8 @@ import { SellersModule } from './sellers/sellers.module';
     TicketsModule,
     CategoriesModule,
     ProudctsModule,
-    SellersModule
+    SellersModule,
+    SellersRequestsModule
   ],
 })
 export class AppModule {}
