@@ -1,14 +1,16 @@
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { SellerStatusEnums } from '../enums/sellerStatusEnums.enum';
-import { User } from 'src/users/entities/user.entity';
+import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
 
 @Entity({ name: 'sellers' })
 export class Seller {
@@ -40,6 +42,9 @@ export class Seller {
   @OneToOne(() => User, (user) => user.seller)
   @JoinColumn()
   user: User;
+
+  @OneToMany(() => SellersRequest, (request) => request.seller)
+  requests: SellersRequest[];
 
   @CreateDateColumn({})
   created_at: Date;

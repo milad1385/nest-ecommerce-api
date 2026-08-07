@@ -1,10 +1,12 @@
 import { Category } from 'src/categories/entities/category.entity';
+import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -39,6 +41,9 @@ export class Proudct {
     },
   })
   categories: Category[];
+
+  @OneToMany(() => SellersRequest, (request) => request.product)
+  requests: SellersRequest[];
 
   @CreateDateColumn()
   created_at: Date;
