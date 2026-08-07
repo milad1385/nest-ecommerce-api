@@ -10,7 +10,7 @@ import { SellerRequestEnums } from '../enums/sellers-requests-status-enums';
 import { Seller } from 'src/sellers/entities/seller.entity';
 import { Proudct } from 'src/proudcts/entities/proudct.entity';
 
-@Entity({ name: 'sellers-requests' })
+@Entity({ name: 'sellers_requests' })
 export class SellersRequest {
   @PrimaryGeneratedColumn('increment')
   id: number;
