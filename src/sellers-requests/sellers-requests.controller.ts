@@ -59,11 +59,21 @@ export class SellersRequestsController {
   }
 
   @Put(':id')
-  update(
+  async update(
+    @Res() res: Response,
     @Param('id') id: string,
     @Body() updateSellersRequestDto: UpdateSellersRequestDto,
   ) {
-    return this.sellersRequestsService.update(+id, updateSellersRequestDto);
+    const updatedSellerRequest = await this.sellersRequestsService.update(
+      +id,
+      updateSellersRequestDto,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      status: HttpStatus.OK,
+      message: 'درخواست فروشنده آپدیت شد',
+      data: updatedSellerRequest,
+    });
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
