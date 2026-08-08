@@ -93,8 +93,25 @@ export class SellersRequestsService {
     return sellerRequest;
   }
 
-  update(id: number, updateSellersRequestDto: UpdateSellersRequestDto) {
-    return `This action updates a #${id} sellersRequest`;
+  async update(id: number, updateSellersRequestDto: UpdateSellersRequestDto) {
+    const sellerRequest = await this.findOne(id);
+    const { stock, discount, price } = updateSellersRequestDto;
+
+    if (stock) sellerRequest.stock = stock;
+
+    if (discount) {
+      sellerRequest.discount = discount;
+      sellerRequest.status = SellerRequestEnums.PENDING;
+    }
+
+    if (price) {
+      sellerRequest.price = price;
+      sellerRequest.status = SellerRequestEnums.PENDING;
+    }
+
+    await this.sellerRequestRepository.save(sellerRequest);
+
+    return await this.findOne(id);
   }
 
   async updateStatus(
