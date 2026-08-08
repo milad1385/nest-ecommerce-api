@@ -134,6 +134,73 @@ export class SellersRequestsService {
     return { sellersRequests, count };
   }
 
+  async findAllRequest(
+    { page = 1, limit = 10, status }: GetSellersRequestsDto,
+    userId: number,
+  ): Promise<{
+    sellerRequests: SellersRequest[];
+    count: number;
+  }> {
+    let where: any = {
+      seller: {
+        user: {
+          id: userId,
+        },
+      },
+    };
+
+    if (status) {
+      where.status = status;
+    }
+    const count = await this.sellerRequestRepository.count({ where });
+    const sellerRequests = await this.sellerRequestRepository.find({
+      where,
+      relations: {
+        seller: {
+          user: true,
+        },
+        product: {
+          categories: {
+            categories: {
+              categories: true,
+            },
+          },
+        },
+      },
+      select: {
+        product: {
+          title: true,
+          categories: {
+            title: true,
+            slug: true,
+            categories: {
+              title: true,
+              slug: true,
+              categories: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        seller: {
+          name: true,
+          email: true,
+          phone: true,
+          province: true,
+          user: {
+            display_name: true,
+            mobile: true,
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { sellerRequests, count };
+  }
+
   async findOne(id: number) {
     const sellerRequest = await this.sellerRequestRepository.findOne({
       where: { id },
