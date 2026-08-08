@@ -32,27 +32,16 @@ export class CreateSellersRequestDto {
   discount?: number;
 
   @IsOptional()
-  @IsEnum(SellerRequestEnums, {
-    message: `وضعیت باید یکی از مقادیر ${Object.values(SellerRequestEnums).join('، ')} باشد`,
-  })
-  status?: SellerRequestEnums;
-
-  @IsOptional()
   @IsNumber({}, { message: 'اولویت باید یک عدد معتبر باشد' })
   @Min(1, { message: 'اولویت حداقل باید ۱ باشد' })
   @Max(10, { message: 'اولویت حداکثر باید ۱۰ باشد' })
   @Type(() => Number)
   priority?: number;
 
-  @IsOptional()
-  @IsString({ message: 'نظر ادمین باید یک متن معتبر باشد' })
-  @MinLength(1, { message: 'نظر ادمین نمی‌تواند خالی باشد' })
-  adminComment?: string;
-
-  @IsNotEmpty({ message: 'شناسه فروشنده الزامی است' })
-  @IsNumber({}, { message: 'شناسه فروشنده باید یک عدد معتبر باشد' })
-  @Type(() => Number)
-  seller_id: number;
+  // @IsOptional()
+  // @IsString({ message: 'نظر ادمین باید یک متن معتبر باشد' })
+  // @MinLength(1, { message: 'نظر ادمین نمی‌تواند خالی باشد' })
+  // adminComment?: string;
 
   @IsNotEmpty({ message: 'شناسه محصول الزامی است' })
   @IsNumber({}, { message: 'شناسه محصول باید یک عدد معتبر باشد' })
