@@ -50,7 +50,7 @@ export class UsersService {
       if (status) {
         where.status = status;
       }
-      const count = await this.userRepository.count({});
+      const count = await this.userRepository.count(where);
       const users = await this.userRepository.find({
         where,
         skip: (page - 1) * limit,
