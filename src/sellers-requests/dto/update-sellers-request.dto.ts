@@ -1,10 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-  IsNumber,
-  IsOptional,
-  Max,
-  Min
-} from 'class-validator';
+import { IsNumber, IsOptional, IsPositive, Max, Min } from 'class-validator';
 
 export class UpdateSellersRequestDto {
   @IsOptional()
@@ -16,6 +11,7 @@ export class UpdateSellersRequestDto {
   @IsOptional()
   @IsNumber({}, { message: 'قیمت باید یک عدد معتبر باشد' })
   @Min(1, { message: 'قیمت حداقل باید ۱ باشد' })
+  @IsPositive({ message: 'قیمت نمی تواند منفی باشد' })
   @Type(() => Number)
   price?: number;
 
@@ -25,11 +21,4 @@ export class UpdateSellersRequestDto {
   @Max(100, { message: 'تخفیف حداکثر باید ۱۰۰ درصد باشد' })
   @Type(() => Number)
   discount?: number;
-
-  @IsOptional()
-  @IsNumber({}, { message: 'اولویت باید یک عدد معتبر باشد' })
-  @Min(1, { message: 'اولویت حداقل باید ۱ باشد' })
-  @Max(10, { message: 'اولویت حداکثر باید ۱۰ باشد' })
-  @Type(() => Number)
-  priority?: number;
 }
