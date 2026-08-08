@@ -96,8 +96,16 @@ export class SellersRequestsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sellersRequestsService.remove(+id);
+  async remove(@Res() res: Response, @Param('id') id: string) {
+    const deletedSellerRequest = await this.sellersRequestsService.remove(+id);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'درخواست فروشنده با موفقیت حذف شد',
+      data: deletedSellerRequest,
+    });
   }
 }
