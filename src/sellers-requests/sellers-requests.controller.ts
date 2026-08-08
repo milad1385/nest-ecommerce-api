@@ -72,6 +72,28 @@ export class SellersRequestsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.SELLER, UserRoleEnums.ADMIN)
+  @Get('/own')
+  async findAllRequest(
+    @Res() res: Response,
+    @Query() queryDto: GetSellersRequestsDto,
+    @GetUser('id') userId: number,
+  ) {
+    const { page, limit } = queryDto;
+    const { sellerRequests, count } =
+      await this.sellersRequestsService.findAllRequest(queryDto, userId);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'لیست درخواست شما با موفقیت دریافت شد',
+      data: {
+        sellerRequests,
+        pagination: createPagination(page, limit, count, 'SellerRequests'),
+      },
+    });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sellersRequestsService.findOne(+id);
