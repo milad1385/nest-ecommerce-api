@@ -44,7 +44,7 @@ export class SellersRequest {
   product: Proudct;
 
   @CreateDateColumn()
-  craeted_at: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
