@@ -1,24 +1,26 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Res,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import { SellersRequestsService } from './sellers-requests.service';
-import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
-import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
 import type { Response } from 'express';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
+import { UpdateSellerRequestStatusDto } from './dto/update-seller-request-status.dto';
+import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
+import { SellersRequestsService } from './sellers-requests.service';
 
 @Controller('sellers-requests')
 export class SellersRequestsController {
@@ -56,12 +58,32 @@ export class SellersRequestsController {
     return this.sellersRequestsService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateSellersRequestDto: UpdateSellersRequestDto,
   ) {
     return this.sellersRequestsService.update(+id, updateSellersRequestDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
+  @Patch(':id/status')
+  async updateStatus(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() updateSellerRequestStatusDto: UpdateSellerRequestStatusDto,
+  ) {
+    const sellerRequest = await this.sellersRequestsService.updateStatus(
+      +id,
+      updateSellerRequestStatusDto,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      status: HttpStatus.OK,
+      message: 'وضعیت درخواست فروشنده تغییر کرد',
+      data: sellerRequest,
+    });
   }
 
   @Delete(':id')
