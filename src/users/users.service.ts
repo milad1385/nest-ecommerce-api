@@ -131,4 +131,10 @@ export class UsersService {
 
     return user;
   }
+
+  async changeRole(userId: number, role: UserRoleEnums) {
+    const user = await this.findOne(userId);
+    user.role = role;
+    return await this.userRepository.save(user);
+  }
 }
