@@ -5,11 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/categories/entities/category.entity';
-import {
-  Brackets,
-  In,
-  Repository
-} from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { CreateProudctDto } from './dto/create-proudct.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { UpdateProudctDto } from './dto/update-proudct.dto';
@@ -185,6 +181,15 @@ export class ProudctsService {
     const product = await this.productRepository.findOneBy({ slug });
     if (!product) {
       throw new NotFoundException('محصولی با این اسلاگ یافت نشد');
+    }
+
+    return product;
+  }
+
+  async findOneById(id: number) {
+    const product = await this.productRepository.findOneBy({ id });
+    if (!product) {
+      throw new NotFoundException(`محصولی با این آیدی ${id} یافت نشد`);
     }
 
     return product;
