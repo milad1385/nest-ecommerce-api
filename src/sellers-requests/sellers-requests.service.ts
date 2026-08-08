@@ -3,15 +3,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
-import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SellersRequest } from './entities/sellers-request.entity';
-import { Repository } from 'typeorm';
-import { SellersService } from 'src/sellers/sellers.service';
-import { SellerRequestEnums } from './enums/sellers-requests-status-enums';
 import { ProudctsService } from 'src/proudcts/proudcts.service';
+import { SellersService } from 'src/sellers/sellers.service';
+import { Repository } from 'typeorm';
+import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
+import { GetSellersRequestsDto } from './dto/get-seller-request.dto';
 import { UpdateSellerRequestStatusDto } from './dto/update-seller-request-status.dto';
+import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
+import { SellersRequest } from './entities/sellers-request.entity';
+import { SellerRequestEnums } from './enums/sellers-requests-status-enums';
 
 @Injectable()
 export class SellersRequestsService {
@@ -71,8 +72,66 @@ export class SellersRequestsService {
     return await this.sellerRequestRepository.save(newSellerRequest);
   }
 
-  findAll() {
-    return `This action returns all sellersRequests`;
+  async findAll({
+    page = 1,
+    limit = 10,
+    status,
+  }: GetSellersRequestsDto): Promise<{
+    sellersRequests: SellersRequest[];
+    count: number;
+  }> {
+    let where: any = {};
+
+    if (status) {
+      where.status = status;
+    }
+    const count = await this.sellerRequestRepository.count({ where });
+    const sellersRequests = await this.sellerRequestRepository.find({
+      where,
+      relations: {
+        seller: {
+          user: true,
+        },
+        product: {
+          categories: {
+            categories: {
+              categories: true,
+            },
+          },
+        },
+      },
+      select: {
+        product: {
+          title: true,
+          categories: {
+            title: true,
+            slug: true,
+            categories: {
+              title: true,
+              slug: true,
+              categories: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        seller: {
+          name: true,
+          email: true,
+          phone: true,
+          province: true,
+          user: {
+            display_name: true,
+            mobile: true,
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { sellersRequests, count };
   }
 
   async findOne(id: number) {
