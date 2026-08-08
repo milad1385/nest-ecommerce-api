@@ -72,13 +72,6 @@ export class CreateSellerDto {
   province: string;
 
   @IsOptional()
-  @IsEnum(SellerStatusEnums, {
-    message:
-      'وضعیت فروشنده معتبر نیست. مقادیر مجاز: ${Object.values(SellerStatusEnums).join(", ")}',
-  })
-  status?: SellerStatusEnums = SellerStatusEnums.PENDING;
-
-  @IsOptional()
   @IsNumber(
     {},
     {
