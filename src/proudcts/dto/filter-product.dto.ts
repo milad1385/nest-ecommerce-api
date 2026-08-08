@@ -26,7 +26,6 @@ export enum SortOrder {
 }
 
 export class FilterProductDto {
-    // ========== پیجینیشن ==========
     @IsOptional()
     @IsInt()
     @Min(1)
@@ -40,12 +39,10 @@ export class FilterProductDto {
     @Transform(({ value }) => parseInt(value) || 10)
     limit: number = 10;
 
-    // ========== جستجو ==========
     @IsOptional()
     @IsString()
     search?: string;
 
-    // ========== فیلتر قیمت ==========
     @IsOptional()
     @IsNumber()
     @Min(0)
@@ -58,13 +55,11 @@ export class FilterProductDto {
     @Transform(({ value }) => parseFloat(value))
     maxPrice?: number;
 
-    // ========== فیلتر موجودی ==========
     @IsOptional()
     @IsBoolean()
     @Transform(({ value }) => value === 'true')
     inStock?: boolean;
 
-    // ========== فیلتر دسته‌بندی ==========
     @IsOptional()
     @IsArray()
     @IsString({ each: true })
@@ -80,7 +75,7 @@ export class FilterProductDto {
     })
     categorySlugs?: string[];
 
-    // ========== فیلتر تاریخ ==========
+
     @IsOptional()
     @IsDate()
     @Type(() => Date)
@@ -101,7 +96,6 @@ export class FilterProductDto {
     @Type(() => Date)
     updatedTo?: Date;
 
-    // ========== مرتب‌سازی ==========
     @IsOptional()
     @IsEnum(SortField)
     sortField: SortField = SortField.CREATED_AT;
@@ -110,7 +104,7 @@ export class FilterProductDto {
     @IsEnum(SortOrder)
     sortOrder: SortOrder = SortOrder.DESC;
 
-    // ========== فیلترهای وضعیت ==========
+
     @IsOptional()
     @IsBoolean()
     @Transform(({ value }) => value === 'true')
