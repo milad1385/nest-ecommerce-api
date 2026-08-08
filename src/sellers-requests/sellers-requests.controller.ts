@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -21,6 +22,8 @@ import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
 import { UpdateSellerRequestStatusDto } from './dto/update-seller-request-status.dto';
 import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
 import { SellersRequestsService } from './sellers-requests.service';
+import { GetSellersRequestsDto } from './dto/get-seller-request.dto';
+import { createPagination } from 'utils/func';
 
 @Controller('sellers-requests')
 export class SellersRequestsController {
@@ -48,9 +51,25 @@ export class SellersRequestsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   @Get()
-  findAll() {
-    return this.sellersRequestsService.findAll();
+  async findAll(
+    @Res() res: Response,
+    @Query() queryDto: GetSellersRequestsDto,
+  ) {
+    const { page, limit } = queryDto;
+    const { sellersRequests, count } =
+      await this.sellersRequestsService.findAll(queryDto);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'لیست درخواست فروشندگان با موفقیت دریافت شد',
+      data: {
+        sellersRequests,
+        pagination: createPagination(page, limit, count, 'SellersRequests'),
+      },
+    });
   }
 
   @Get(':id')
