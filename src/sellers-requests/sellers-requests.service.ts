@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
 import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +11,7 @@ import { Repository } from 'typeorm';
 import { SellersService } from 'src/sellers/sellers.service';
 import { SellerRequestEnums } from './enums/sellers-requests-status-enums';
 import { ProudctsService } from 'src/proudcts/proudcts.service';
+import { UpdateSellerRequestStatusDto } from './dto/update-seller-request-status.dto';
 
 @Injectable()
 export class SellersRequestsService {
@@ -70,12 +75,43 @@ export class SellersRequestsService {
     return `This action returns all sellersRequests`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} sellersRequest`;
+  async findOne(id: number) {
+    const sellerRequest = await this.sellerRequestRepository.findOne({
+      where: { id },
+      relations: {
+        seller: true,
+        product: true,
+      },
+    });
+
+    if (!sellerRequest) {
+      throw new NotFoundException(
+        `درخواست فروشنده ای با این آیدی ${id} یافت نشد`,
+      );
+    }
+
+    return sellerRequest;
   }
 
   update(id: number, updateSellersRequestDto: UpdateSellersRequestDto) {
     return `This action updates a #${id} sellersRequest`;
+  }
+
+  async updateStatus(
+    id: number,
+    updateStatusDto: UpdateSellerRequestStatusDto,
+  ) {
+    const { adminComment, status } = updateStatusDto;
+    const sellerRequest = await this.findOne(id);
+
+    sellerRequest.status = status;
+    if (adminComment) {
+      sellerRequest.adminComment = adminComment;
+    }
+
+    await this.sellerRequestRepository.save(sellerRequest);
+
+    return await this.findOne(sellerRequest.id);
   }
 
   remove(id: number) {
