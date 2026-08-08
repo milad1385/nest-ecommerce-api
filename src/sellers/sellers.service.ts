@@ -174,4 +174,13 @@ export class SellersService {
 
     return seller;
   }
+
+  async findByUserId(id: number) {
+    const seller = await this.sellerRepository.findOneBy({ user: { id } });
+    if (!seller) {
+      throw new NotFoundException('فروشنده ای با مشخصات شما یافت نشد');
+    }
+
+    return seller;
+  }
 }
