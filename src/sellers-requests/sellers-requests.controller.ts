@@ -93,13 +93,31 @@ export class SellersRequestsController {
       },
     });
   }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.SELLER, UserRoleEnums.ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sellersRequestsService.findOne(+id);
+  async findOne(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @GetUser('id') userId: number,
+    @GetUser('role') role: string,
+  ) {
+    const sellerRequest = await this.sellersRequestsService.findOneByUserId(
+      +id,
+      userId,
+      role,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'درخواست فروشنده با موفقیت دریافت شد',
+      data: sellerRequest,
+    });
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.SELLER)
   async update(
     @Res() res: Response,
     @Param('id') id: string,
