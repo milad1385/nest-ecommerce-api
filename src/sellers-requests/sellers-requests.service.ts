@@ -102,11 +102,13 @@ export class SellersRequestsService {
     if (discount) {
       sellerRequest.discount = discount;
       sellerRequest.status = SellerRequestEnums.PENDING;
+      sellerRequest.adminComment = '';
     }
 
     if (price) {
       sellerRequest.price = price;
       sellerRequest.status = SellerRequestEnums.PENDING;
+      sellerRequest.adminComment = '';
     }
 
     await this.sellerRequestRepository.save(sellerRequest);
