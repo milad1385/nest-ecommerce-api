@@ -133,7 +133,19 @@ export class SellersRequestsService {
     return await this.findOne(sellerRequest.id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} sellersRequest`;
+  async remove(id: number) {
+    const sellerRequest = await this.findOne(id);
+
+    const deletedRequest = await this.sellerRequestRepository.delete(
+      sellerRequest.id,
+    );
+
+    if (deletedRequest.affected === 0) {
+      throw new BadRequestException(
+        'هنگام حذف درخواست فروشنده مشکلی به وجود آمد',
+      );
+    }
+
+    return sellerRequest;
   }
 }
