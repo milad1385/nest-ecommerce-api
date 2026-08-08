@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { UpdateSellerRequestStatusDto } from './dto/update-seller-request-status
 import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
 import { SellersRequest } from './entities/sellers-request.entity';
 import { SellerRequestEnums } from './enums/sellers-requests-status-enums';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 
 @Injectable()
 export class SellersRequestsService {
@@ -201,12 +203,73 @@ export class SellersRequestsService {
     return { sellerRequests, count };
   }
 
+  async findOneByUserId(id: number, userId: number, role: string) {
+    const sellerRequest = await this.sellerRequestRepository.findOne({
+      where: { id },
+      relations: {
+        seller: {
+          user: true,
+        },
+        product: {
+          categories: true,
+        },
+      },
+      select: {
+        seller: {
+          id: true,
+          name: true,
+          phone: true,
+          province: true,
+          postal_code: true,
+          user: {
+            id: true,
+            display_name: true,
+            mobile: true,
+          },
+        },
+      },
+    });
+
+    if (
+      sellerRequest?.seller.user.id !== userId ||
+      role !== UserRoleEnums.ADMIN
+    ) {
+      throw new ForbiddenException('شما مجوز دریافت این اطلاعات را ندارید');
+    }
+
+    if (!sellerRequest) {
+      throw new NotFoundException(
+        `درخواست فروشنده ای با این آیدی ${id} یافت نشد`,
+      );
+    }
+
+    return sellerRequest;
+  }
+
   async findOne(id: number) {
     const sellerRequest = await this.sellerRequestRepository.findOne({
       where: { id },
       relations: {
-        seller: true,
-        product: true,
+        seller: {
+          user: true,
+        },
+        product: {
+          categories: true,
+        },
+      },
+      select: {
+        seller: {
+          id: true,
+          name: true,
+          phone: true,
+          province: true,
+          postal_code: true,
+          user: {
+            id: true,
+            display_name: true,
+            mobile: true,
+          },
+        },
       },
     });
 
