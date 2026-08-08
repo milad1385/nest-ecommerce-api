@@ -4,15 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateSellerDto } from './dto/create-seller.dto';
-import { UpdateSellerDto } from './dto/update-seller.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Seller } from './entities/seller.entity';
-import { Repository } from 'typeorm';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { UsersService } from 'src/users/users.service';
+import { Repository } from 'typeorm';
+import { CreateSellerDto } from './dto/create-seller.dto';
 import { GetSellerDto } from './dto/get-seller.dto';
-import { plainToInstance } from 'class-transformer';
 import { UpdateSellerStatusDto } from './dto/update-seller-status.dto';
+import { UpdateSellerDto } from './dto/update-seller.dto';
+import { Seller } from './entities/seller.entity';
+import { SellerStatusEnums } from './enums/sellerStatusEnums.enum';
 
 @Injectable()
 export class SellersService {
@@ -22,12 +23,14 @@ export class SellersService {
     private readonly usersService: UsersService,
   ) {}
   async create(createSellerDto: CreateSellerDto) {
-    const user = await this.usersService.findOne(createSellerDto.userId);
+    const { name, email, phone, postal_code, province, userId } =
+      createSellerDto;
+    const user = await this.usersService.findOne(userId);
 
     const seller = await this.sellerRepository.findOne({
       where: {
         user: {
-          id: createSellerDto.userId,
+          id: userId,
         },
       },
     });
@@ -59,7 +62,11 @@ export class SellersService {
     }
 
     const newSeller = this.sellerRepository.create({
-      ...createSellerDto,
+      name,
+      email,
+      province,
+      postal_code,
+      phone,
       user,
     });
 
@@ -112,6 +119,7 @@ export class SellersService {
           mobile: true,
           username: true,
           createdAt: true,
+          role: true,
         },
       },
     });
@@ -149,6 +157,13 @@ export class SellersService {
     seller.status = updateStatusDto.status;
 
     const updatedSeller = await this.sellerRepository.save(seller);
+
+    if (
+      updateStatusDto.status === SellerStatusEnums.ACCEPT &&
+      seller.user.role === UserRoleEnums.USER
+    ) {
+      await this.usersService.changeRole(seller.user.id, UserRoleEnums.SELLER);
+    }
 
     return await this.sellerRepository.findOne({
       where: { id: updatedSeller.id },
