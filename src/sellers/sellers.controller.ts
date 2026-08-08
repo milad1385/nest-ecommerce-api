@@ -96,7 +96,7 @@ export class SellersController {
 
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnums.ADMIN)
+  // @Roles(UserRoleEnums.ADMIN)
   async updateStatus(
     @Res() res: Response,
     @Param('id') id: string,

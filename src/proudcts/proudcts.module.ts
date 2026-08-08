@@ -9,5 +9,6 @@ import { Category } from 'src/categories/entities/category.entity';
   imports: [TypeOrmModule.forFeature([Proudct, Category])],
   controllers: [ProudctsController],
   providers: [ProudctsService],
+  exports: [ProudctsService],
 })
 export class ProudctsModule {}
