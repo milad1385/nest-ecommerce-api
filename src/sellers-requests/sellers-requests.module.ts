@@ -4,13 +4,13 @@ import { SellersRequestsController } from './sellers-requests.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SellersRequest } from './entities/sellers-request.entity';
 import { SellersModule } from 'src/sellers/sellers.module';
-import { ProudctsModule } from 'src/proudcts/proudcts.module';
+import { ProductsModule } from 'src/products/products.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SellersRequest]),
     SellersModule,
-    ProudctsModule,
+    ProductsModule,
   ],
   controllers: [SellersRequestsController],
   providers: [SellersRequestsService],

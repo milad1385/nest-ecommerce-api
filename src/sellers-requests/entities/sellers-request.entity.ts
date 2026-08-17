@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { SellerRequestEnums } from '../enums/sellers-requests-status-enums';
 import { Seller } from 'src/sellers/entities/seller.entity';
-import { Proudct } from 'src/proudcts/entities/proudct.entity';
+import { Product } from 'src/products/entities/proudct.entity';
 
 @Entity({ name: 'sellers_requests' })
 export class SellersRequest {
@@ -40,8 +40,8 @@ export class SellersRequest {
   @ManyToOne(() => Seller, (seller) => seller.requests)
   seller: Seller;
 
-  @ManyToOne(() => Proudct, (product) => product.requests)
-  product: Proudct;
+  @ManyToOne(() => Product, (product) => product.requests)
+  product: Product;
 
   @CreateDateColumn()
   created_at: Date;

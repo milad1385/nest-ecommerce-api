@@ -1,3 +1,4 @@
+import { AttributeValue } from 'src/attributes/entities/attribute-value.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
 import {
@@ -12,7 +13,7 @@ import {
 } from 'typeorm';
 
 @Entity({ name: 'products' })
-export class Proudct {
+export class Product {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -44,6 +45,11 @@ export class Proudct {
 
   @OneToMany(() => SellersRequest, (request) => request.product)
   requests: SellersRequest[];
+
+  @OneToMany(() => AttributeValue, (av) => av.product, {
+    cascade: true,
+  })
+  attributeValues: AttributeValue[];
 
   @CreateDateColumn()
   created_at: Date;

@@ -11,9 +11,9 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { ProudctsService } from './proudcts.service';
-import { CreateProudctDto } from './dto/create-proudct.dto';
-import { UpdateProudctDto } from './dto/update-proudct.dto';
+import { ProductsService } from './products.service';
+import { CreateProductDto } from './dto/create-proudct.dto';
+import { UpdateProductDto } from './dto/update-proudct.dto';
 import type { Response } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -22,18 +22,18 @@ import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { createPagination } from 'utils/func';
 
-@Controller('proudcts')
-export class ProudctsController {
-  constructor(private readonly proudctsService: ProudctsService) {}
+@Controller('Products')
+export class ProductsController {
+  constructor(private readonly ProductsService: ProductsService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnums.ADMIN)
   async create(
     @Res() res: Response,
-    @Body() createProudctDto: CreateProudctDto,
+    @Body() createProductDto: CreateProductDto,
   ) {
-    const product = await this.proudctsService.create(createProudctDto);
+    const product = await this.ProductsService.create(createProductDto);
 
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
@@ -45,7 +45,7 @@ export class ProudctsController {
   @Get()
   async findAll(@Res() res: Response, @Query() filterDto: FilterProductDto) {
     const { page, limit } = filterDto;
-    const { items, count } = await this.proudctsService.findAll(filterDto);
+    const { items, count } = await this.ProductsService.findAll(filterDto);
 
     return res.status(HttpStatus.OK).json({
       statusCode: 200,
@@ -63,7 +63,7 @@ export class ProudctsController {
     @Param('slug') slug: string,
     @Query() filterDto: FilterProductDto,
   ) {
-    const result = await this.proudctsService.findByCategorySlug(
+    const result = await this.ProductsService.findByCategorySlug(
       slug,
       filterDto,
     );
@@ -77,7 +77,7 @@ export class ProudctsController {
 
   @Get(':slug')
   async findOne(@Param('slug') slug: string) {
-    const product = await this.proudctsService.findOneBySlug(slug);
+    const product = await this.ProductsService.findOneBySlug(slug);
 
     return {
       statusCode: 200,
@@ -87,12 +87,12 @@ export class ProudctsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProudctDto: UpdateProudctDto) {
-    return this.proudctsService.update(+id, updateProudctDto);
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+    return this.ProductsService.update(+id, updateProductDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.proudctsService.remove(+id);
+    return this.ProductsService.remove(+id);
   }
 }

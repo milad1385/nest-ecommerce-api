@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProudctsService } from 'src/proudcts/proudcts.service';
+import { ProductsService } from 'src/products/products.service';
 import { SellersService } from 'src/sellers/sellers.service';
 import { Repository } from 'typeorm';
 import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
@@ -22,7 +22,7 @@ export class SellersRequestsService {
     @InjectRepository(SellersRequest)
     private readonly sellerRequestRepository: Repository<SellersRequest>,
     private readonly sellerService: SellersService,
-    private readonly productService: ProudctsService,
+    private readonly productService: ProductsService,
   ) {}
   async create(
     createSellersRequestDto: CreateSellersRequestDto,

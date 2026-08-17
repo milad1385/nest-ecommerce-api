@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateProudctDto {
+export class CreateProductDto {
   @MaxLength(150, { message: 'حداکثر عنوان محصول باید 150 کاراکتر باشد' })
   @MinLength(3, { message: 'حداقل عنوان محصول باید 3 کاراکتر باشد' })
   @IsString({ message: 'عنوان محصول باید رشته باشد' })

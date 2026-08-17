@@ -6,22 +6,22 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { Brackets, In, Repository } from 'typeorm';
-import { CreateProudctDto } from './dto/create-proudct.dto';
+import { CreateProductDto } from './dto/create-proudct.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
-import { UpdateProudctDto } from './dto/update-proudct.dto';
-import { Proudct } from './entities/proudct.entity';
+import { UpdateProductDto } from './dto/update-proudct.dto';
+import { Product } from './entities/proudct.entity';
 
 @Injectable()
-export class ProudctsService {
+export class ProductsService {
   constructor(
-    @InjectRepository(Proudct)
-    private readonly productRepository: Repository<Proudct>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
   ) {}
-  async create(createProudctDto: CreateProudctDto) {
+  async create(createProductDto: CreateProductDto) {
     const { title, slug, shortDescription, description, categoryIds } =
-      createProudctDto;
+      createProductDto;
 
     const product = await this.productRepository.findOneBy({ slug });
     if (product) throw new BadRequestException('محصولی با این اسلاگ وجود دارد');
@@ -45,7 +45,7 @@ export class ProudctsService {
 
   async findAll(
     filterDto: FilterProductDto,
-  ): Promise<{ items: Proudct[]; count: number }> {
+  ): Promise<{ items: Product[]; count: number }> {
     const {
       page = 1,
       limit = 10,
@@ -163,7 +163,7 @@ export class ProudctsService {
     });
   }
 
-  async findOneBySlug(slug: string): Promise<Proudct> {
+  async findOneBySlug(slug: string): Promise<Product> {
     const product = await this.productRepository
       .createQueryBuilder('products')
       .leftJoinAndSelect('products.categories', 'categories')
@@ -195,11 +195,11 @@ export class ProudctsService {
     return product;
   }
 
-  update(id: number, updateProudctDto: UpdateProudctDto) {
-    return `This action updates a #${id} proudct`;
+  update(id: number, updateProductDto: UpdateProductDto) {
+    return `This action updates a #${id} Product`;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} proudct`;
+    return `This action removes a #${id} Product`;
   }
 }

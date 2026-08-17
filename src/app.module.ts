@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { AddressModule } from './address/address.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { CategoriesModule } from './categories/categories.module';
-import { ProudctsModule } from './proudcts/proudcts.module';
+import { ProductsModule } from './products/products.module';
 import { SellersModule } from './sellers/sellers.module';
 import { SellersRequestsModule } from './sellers-requests/sellers-requests.module';
 import { AttributesModule } from './attributes/attributes.module';
@@ -30,7 +30,7 @@ import { AttributesModule } from './attributes/attributes.module';
     AddressModule,
     TicketsModule,
     CategoriesModule,
-    ProudctsModule,
+    ProductsModule,
     SellersModule,
     SellersRequestsModule,
     AttributesModule

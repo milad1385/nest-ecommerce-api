@@ -1,4 +1,4 @@
-import { Proudct } from 'src/proudcts/entities/proudct.entity';
+import { Product } from 'src/products/entities/proudct.entity';
 import {
   Column,
   CreateDateColumn,
@@ -34,8 +34,8 @@ export class Category {
   @ManyToOne(() => Category, (category) => category.categories)
   parent: Category | null;
 
-  @ManyToMany(() => Proudct, (product) => product.categories)
-  products: Proudct[];
+  @ManyToMany(() => Product, (product) => product.categories)
+  products: Product[];
 
   @CreateDateColumn()
   created_at: Date;
