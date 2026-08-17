@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  Put,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-proudct.dto';
@@ -21,10 +22,15 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { createPagination } from 'utils/func';
+import { ProductAttributeService } from './product-attribute.service';
+import { AddAttributesDto } from './dto/add-attributes.dto';
 
 @Controller('Products')
 export class ProductsController {
-  constructor(private readonly ProductsService: ProductsService) {}
+  constructor(
+    private readonly ProductsService: ProductsService,
+    private readonly productAttributeService: ProductAttributeService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -94,5 +100,70 @@ export class ProductsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ProductsService.remove(+id);
+  }
+
+  @Put(':id/attributes')
+  async addAttributes(
+    @Res() res: Response,
+    @Param('id') id: number,
+    @Body() dto: AddAttributesDto,
+  ) {
+    const data = await this.productAttributeService.addAttributesToProduct(
+      id,
+      dto.attributes,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'ویژگی‌ها با موفقیت اضافه شدند',
+      data,
+    });
+  }
+
+  @Put(':id/attributes/:attributeName')
+  async updateAttributeValue(
+    @Res() res: Response,
+    @Param('id') id: number,
+    @Param('attributeName') attributeName: string,
+    @Body() body: { value: string },
+  ) {
+    const data = await this.productAttributeService.updateAttributeValue(
+      id,
+      attributeName,
+      body.value,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'مقدار ویژگی با موفقیت بروزرسانی شد',
+      data,
+    });
+  }
+
+  @Delete(':id/attributes/:attributeName')
+  async removeAttribute(
+    @Res() res: Response,
+    @Param('id') id: number,
+    @Param('attributeName') attributeName: string,
+  ) {
+    await this.productAttributeService.removeAttributeFromProduct(
+      id,
+      attributeName,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'ویژگی با موفقیت از محصول حذف شد',
+    });
+  }
+
+  @Delete(':id/attributes')
+  async clearAttributes(@Res() res: Response, @Param('id') id: number) {
+    await this.productAttributeService.clearProductAttributes(id);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'همه ویژگی‌های محصول با موفقیت حذف شدند',
+    });
   }
 }
