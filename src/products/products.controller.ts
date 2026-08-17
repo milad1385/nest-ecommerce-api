@@ -24,11 +24,12 @@ import { FilterProductDto } from './dto/filter-product.dto';
 import { createPagination } from 'utils/func';
 import { ProductAttributeService } from './product-attribute.service';
 import { AddAttributesDto } from './dto/add-attributes.dto';
+import { plainToClass } from 'class-transformer';
 
 @Controller('Products')
 export class ProductsController {
   constructor(
-    private readonly ProductsService: ProductsService,
+    private readonly productsService: ProductsService,
     private readonly productAttributeService: ProductAttributeService,
   ) {}
 
@@ -39,7 +40,7 @@ export class ProductsController {
     @Res() res: Response,
     @Body() createProductDto: CreateProductDto,
   ) {
-    const product = await this.ProductsService.create(createProductDto);
+    const product = await this.productsService.create(createProductDto);
 
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
@@ -49,12 +50,12 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll(@Res() res: Response, @Query() filterDto: FilterProductDto) {
-    const { page, limit } = filterDto;
-    const { items, count } = await this.ProductsService.findAll(filterDto);
+  async findAll(@Res() res: Response, @Query() query: any) {
+    const { items, count } = await this.productsService.findAll(query);
+    const { page, limit } = query;
 
     return res.status(HttpStatus.OK).json({
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'محصولات با موفقیت دریافت شدند',
       data: {
         products: items,
@@ -69,7 +70,7 @@ export class ProductsController {
     @Param('slug') slug: string,
     @Query() filterDto: FilterProductDto,
   ) {
-    const result = await this.ProductsService.findByCategorySlug(
+    const result = await this.productsService.findByCategorySlug(
       slug,
       filterDto,
     );
@@ -77,13 +78,13 @@ export class ProductsController {
     return res.status(HttpStatus.OK).json({
       statusCode: 200,
       message: `محصولات دسته‌بندی "${slug}" با موفقیت دریافت شدند`,
-      data: result.items,
+      data: result?.items,
     });
   }
 
   @Get(':slug')
   async findOne(@Param('slug') slug: string) {
-    const product = await this.ProductsService.findOneBySlug(slug);
+    const product = await this.productsService.findOneBySlug(slug);
 
     return {
       statusCode: 200,
@@ -94,12 +95,12 @@ export class ProductsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.ProductsService.update(+id, updateProductDto);
+    return this.productsService.update(+id, updateProductDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ProductsService.remove(+id);
+    return this.productsService.remove(+id);
   }
 
   @Put(':id/attributes')
