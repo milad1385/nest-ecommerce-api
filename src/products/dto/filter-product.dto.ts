@@ -118,7 +118,7 @@ export class FilterProductDto {
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
   hasDiscount?: boolean;
-
+  
   @IsOptional()
   @IsObject({ message: 'ویژگی‌ها باید یک شیء باشند' })
   attributes?: Record<string, string>;
