@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
@@ -35,4 +36,8 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray({ message: 'آیدی دسته بندی ها باید آرایه ای از اعداد باشد' })
   categoryIds: number[];
+
+  @IsOptional()
+  @IsObject({ message: 'ویژگی‌ها باید یک شیء باشند' })
+  attributes?: Record<string, string>;
 }
