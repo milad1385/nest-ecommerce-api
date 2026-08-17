@@ -9,6 +9,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProudctsModule } from './proudcts/proudcts.module';
 import { SellersModule } from './sellers/sellers.module';
 import { SellersRequestsModule } from './sellers-requests/sellers-requests.module';
+import { AttributesModule } from './attributes/attributes.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,7 +32,8 @@ import { SellersRequestsModule } from './sellers-requests/sellers-requests.modul
     CategoriesModule,
     ProudctsModule,
     SellersModule,
-    SellersRequestsModule
+    SellersRequestsModule,
+    AttributesModule
   ],
 })
 export class AppModule {}
