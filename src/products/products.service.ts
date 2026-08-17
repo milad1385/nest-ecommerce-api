@@ -10,6 +10,7 @@ import { CreateProductDto } from './dto/create-proudct.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { UpdateProductDto } from './dto/update-proudct.dto';
 import { Product } from './entities/proudct.entity';
+import { ProductAttributeService } from './product-attribute.service';
 
 @Injectable()
 export class ProductsService {
@@ -18,14 +19,22 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly productAttributeService: ProductAttributeService,
   ) {}
   async create(createProductDto: CreateProductDto) {
-    const { title, slug, shortDescription, description, categoryIds } =
-      createProductDto;
+    const {
+      title,
+      slug,
+      shortDescription,
+      description,
+      categoryIds,
+      attributes,
+    } = createProductDto;
 
     const product = await this.productRepository.findOneBy({ slug });
     if (product) throw new BadRequestException('محصولی با این اسلاگ وجود دارد');
 
+    // 2️⃣ ایجاد محصول
     const newProduct = this.productRepository.create({
       title,
       slug,
@@ -33,14 +42,28 @@ export class ProductsService {
       description,
     });
 
-    if (categoryIds) {
+    if (categoryIds && categoryIds.length > 0) {
       const categories = await this.categoryRepository.findBy({
         id: In(categoryIds),
       });
       newProduct.categories = categories;
     }
 
-    return await this.productRepository.save(newProduct);
+    const savedProduct = await this.productRepository.save(newProduct);
+
+    if (attributes && Object.keys(attributes).length > 0) {
+      await this.productAttributeService.addAttributesToProduct(
+        savedProduct.id,
+        attributes,
+      );
+    }
+    return this.productRepository.findOne({
+      where: { id: savedProduct.id },
+      relations: {
+        categories: true,
+        attributeValues: { attribute: true },
+      }, 
+    });
   }
 
   async findAll(
@@ -58,18 +81,22 @@ export class ProductsService {
       createdTo,
       sortField = 'created_at',
       sortOrder = 'DESC',
+      attributes,
     } = filterDto;
 
     const qb = this.productRepository
       .createQueryBuilder('products')
-      .leftJoinAndSelect('products.categories', 'categories');
+      .leftJoinAndSelect('products.categories', 'categories')
+      .leftJoinAndSelect('products.attributeValues', 'attributeValues')
+      .leftJoinAndSelect('attributeValues.attribute', 'attribute');
 
     if (search) {
       qb.andWhere(
         new Brackets((qb) => {
           qb.where('products.title LIKE :search')
             .orWhere('products.shortDescription LIKE :search')
-            .orWhere('products.description LIKE :search');
+            .orWhere('products.description LIKE :search')
+            .orWhere('attributeValues.value LIKE :search');
         }),
         { search: `%${search}%` },
       );
@@ -122,11 +149,11 @@ export class ProductsService {
         const categoryIds = categories.map((c) => c.id);
         qb.andWhere(
           `EXISTS (
-                        SELECT 1 
-                        FROM product_category pc 
-                        WHERE pc.product_id = products.id 
-                        AND pc.category_id IN (:...categoryIds)
-                    )`,
+            SELECT 1 
+            FROM product_category pc 
+            WHERE pc.product_id = products.id 
+            AND pc.category_id IN (:...categoryIds)
+          )`,
           { categoryIds },
         );
       } else {
@@ -134,6 +161,33 @@ export class ProductsService {
           items: [],
           count: 0,
         };
+      }
+    }
+
+    if (attributes && Object.keys(attributes).length > 0) {
+      let paramIndex = 0;
+      for (const [key, value] of Object.entries(attributes)) {
+        if (!value) continue;
+
+        const alias = `av${paramIndex}`;
+        const keyParam = `key${paramIndex}`;
+        const valueParam = `value${paramIndex}`;
+
+        qb.andWhere(
+          `EXISTS (
+            SELECT 1 FROM attribute_values ${alias}
+            INNER JOIN attributes a${paramIndex} ON a${paramIndex}.id = ${alias}.attribute_id
+            WHERE ${alias}.product_id = products.id
+            AND a${paramIndex}.name = :${keyParam}
+            AND ${alias}.value LIKE :${valueParam}
+          )`,
+          {
+            [`${keyParam}`]: key,
+            [`${valueParam}`]: `%${value}%`,
+          },
+        );
+
+        paramIndex++;
       }
     }
 
