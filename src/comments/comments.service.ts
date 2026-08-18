@@ -49,4 +49,72 @@ export class CommentsService {
 
     return this.commentRepository.save(comment);
   }
+
+  async findAll(filterDto: FilterCommentDto): Promise<{
+    items: Comment[];
+    count: number;
+  }> {
+    const {
+      page = 1,
+      limit = 10,
+      product_id,
+      seller_id,
+      user_id,
+      status,
+      minRating,
+      maxRating,
+      sortField = 'created_at',
+      sortOrder = 'DESC',
+    } = filterDto;
+
+    const qb = this.commentRepository
+      .createQueryBuilder('comments')
+      .leftJoinAndSelect('comments.user', 'user')
+      .leftJoinAndSelect('comments.product', 'product')
+      .leftJoinAndSelect('comments.seller', 'seller');
+
+    if (product_id) {
+      qb.andWhere('comments.product_id = :product_id', { product_id });
+    }
+
+    if (seller_id) {
+      qb.andWhere('comments.seller_id = :seller_id', { seller_id });
+    }
+
+    if (user_id) {
+      qb.andWhere('comments.user_id = :user_id', { user_id });
+    }
+
+    if (status) {
+      qb.andWhere('comments.status = :status', { status });
+    }
+
+    if (minRating) {
+      qb.andWhere('comments.rating >= :minRating', { minRating });
+    }
+    if (maxRating) {
+      qb.andWhere('comments.rating <= :maxRating', { maxRating });
+    }
+
+    qb.orderBy(`comments.${sortField}`, sortOrder);
+
+    qb.skip((page - 1) * limit).take(limit);
+
+    const [items, count] = await qb.getManyAndCount();
+
+    return { items, count };
+  }
+
+  async findOne(id: number): Promise<Comment> {
+    const comment = await this.commentRepository.findOne({
+      where: { id },
+      relations: { user: true, product: true, seller: true },
+    });
+
+    if (!comment) {
+      throw new NotFoundException(`کامنت با ID ${id} یافت نشد`);
+    }
+
+    return comment;
+  }
 }
