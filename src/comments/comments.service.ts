@@ -200,4 +200,39 @@ export class CommentsService {
 
     return this.findOne(id);
   }
+
+   async getProductStats(productId: number): Promise<{
+    total: number;
+    averageRating: number;
+    ratingDistribution: Record<number, number>;
+  }> {
+    const comments = await this.commentRepository.find({
+      where: {
+        product: { id: productId },
+        status: CommentStatusEnum.APPROVED,
+      },
+    });
+
+    const total = comments.length;
+    const averageRating =
+      total > 0 ? comments.reduce((sum, c) => sum + c.rating, 0) / total : 0;
+
+    const distribution: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    };
+    comments.forEach((c) => {
+      distribution[c.rating] = (distribution[c.rating] || 0) + 1;
+    });
+
+    return {
+      total,
+      averageRating: Math.round(averageRating * 10) / 10,
+      ratingDistribution: distribution,
+    };
+  }
+
 }
