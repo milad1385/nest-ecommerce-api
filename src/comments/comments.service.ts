@@ -118,7 +118,6 @@ export class CommentsService {
     return comment;
   }
 
-  
   async findByProduct(productId: number): Promise<Comment[]> {
     return this.commentRepository.find({
       where: {
@@ -130,7 +129,7 @@ export class CommentsService {
     });
   }
 
-   async findBySeller(sellerId: number): Promise<Comment[]> {
+  async findBySeller(sellerId: number): Promise<Comment[]> {
     return this.commentRepository.find({
       where: {
         seller: { id: sellerId },
@@ -141,5 +140,26 @@ export class CommentsService {
     });
   }
 
+  async update(
+    id: number,
+    userId: number,
+    dto: UpdateCommentDto,
+  ): Promise<Comment> {
+    const comment = await this.findOne(id);
 
+    if (comment.user.id !== userId) {
+      throw new ForbiddenException('شما اجازه بروزرسانی این کامنت را ندارید');
+    }
+
+    if (comment.status === CommentStatusEnum.APPROVED) {
+      throw new BadRequestException('کامنت تایید شده قابل ویرایش نیست');
+    }
+
+    if (comment.status === CommentStatusEnum.REJECTED) {
+      throw new BadRequestException('کامنت رد شده قابل ویرایش نیست');
+    }
+
+    await this.commentRepository.update(id, dto);
+    return this.findOne(id);
+  }
 }
