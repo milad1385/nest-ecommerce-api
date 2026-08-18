@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { SellerStatusEnums } from '../enums/sellerStatusEnums.enum';
 import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
 
 @Entity({ name: 'sellers' })
 export class Seller {
@@ -45,6 +46,9 @@ export class Seller {
 
   @OneToMany(() => SellersRequest, (request) => request.seller)
   requests: SellersRequest[];
+
+  @OneToMany(() => Comment, (comment) => comment.seller)
+  comments: Comment[];
 
   @CreateDateColumn({})
   created_at: Date;

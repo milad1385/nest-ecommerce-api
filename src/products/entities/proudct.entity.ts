@@ -1,5 +1,6 @@
 import { AttributeValue } from 'src/attributes/entities/attribute-value.entity';
 import { Category } from 'src/categories/entities/category.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
 import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
 import {
   Column,
@@ -50,6 +51,9 @@ export class Product {
     cascade: true,
   })
   attributeValues: AttributeValue[];
+
+  @OneToMany(() => Comment, (comment) => comment.product)
+  comments: Comment[];
 
   @CreateDateColumn()
   created_at: Date;

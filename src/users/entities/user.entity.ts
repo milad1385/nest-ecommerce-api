@@ -12,6 +12,7 @@ import { UserRoleEnums } from '../enums/userRoleEnums';
 import { Address } from 'src/address/entities/address.entity';
 import { Ticket } from 'src/tickets/entities/ticket.entity';
 import { Seller } from 'src/sellers/entities/seller.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -41,6 +42,9 @@ export class User {
 
   @OneToMany(() => Ticket, (ticket) => ticket.user)
   tickets: Ticket[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 
   @OneToOne(() => Seller, (seller) => seller.user)
   @JoinColumn()
