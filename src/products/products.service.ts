@@ -66,9 +66,7 @@ export class ProductsService {
     });
   }
 
-  async findAll(
-    query: any,
-  ): Promise<{ items: Product[]; count: number; page: number; limit: number }> {
+  async findAll(query: any): Promise<{ items: Product[]; count: number }> {
     const attributes: Record<string, string> = {};
     const excludedKeys = [
       'page',
@@ -181,7 +179,7 @@ export class ProductsService {
           .getMany();
 
         if (!categories.length) {
-          return { items: [], count: 0, page, limit };
+          return { items: [], count: 0 };
         }
 
         const categoryIds = categories.map((c) => c.id);
@@ -274,7 +272,7 @@ export class ProductsService {
 
     const [items, count] = await qb.getManyAndCount();
 
-    return { items, count, page, limit };
+    return { items, count };
   }
 
   async findByCategorySlug(slug: string, filterDto: FilterProductDto) {

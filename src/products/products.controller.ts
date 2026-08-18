@@ -52,7 +52,7 @@ export class ProductsController {
   @Get()
   async findAll(@Res() res: Response, @Query() query: any) {
     const { items, count } = await this.productsService.findAll(query);
-    const { page, limit } = query;
+    const { page = 1, limit = 10 } = query;
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
