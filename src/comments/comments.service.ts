@@ -17,6 +17,7 @@ import { CommentStatusEnum } from './enums/comment-status.enum';
 import { ProductsService } from 'src/products/products.service';
 import { SellersService } from 'src/sellers/sellers.service';
 import { UsersService } from 'src/users/users.service';
+import { SellersRequestsService } from 'src/sellers-requests/sellers-requests.service';
 
 @Injectable()
 export class CommentsService {
@@ -26,6 +27,7 @@ export class CommentsService {
     private readonly productService: ProductsService,
     private readonly sellersService: SellersService,
     private readonly usersService: UsersService,
+    private readonly sellersRequestsService: SellersRequestsService,
   ) {}
 
   async create(userId: number, dto: CreateCommentDto): Promise<Comment> {
@@ -37,6 +39,11 @@ export class CommentsService {
     if (dto.seller_id) {
       seller = await this.sellersService.findOne(dto.seller_id);
     }
+
+    await this.sellersRequestsService.hasSellerThisProduct(
+      seller?.id,
+      dto.product_id,
+    );
 
     const comment = this.commentRepository.create({
       content: dto.content,
@@ -125,6 +132,13 @@ export class CommentsService {
         status: CommentStatusEnum.APPROVED,
       },
       relations: { user: true, seller: true },
+      select: {
+        user: {
+          display_name: true,
+          username: true,
+          email: true,
+        },
+      },
       order: { created_at: 'DESC' },
     });
   }
