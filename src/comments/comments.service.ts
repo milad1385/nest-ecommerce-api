@@ -130,4 +130,16 @@ export class CommentsService {
     });
   }
 
+   async findBySeller(sellerId: number): Promise<Comment[]> {
+    return this.commentRepository.find({
+      where: {
+        seller: { id: sellerId },
+        status: CommentStatusEnum.APPROVED,
+      },
+      relations: { user: true, product: true },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+
 }
