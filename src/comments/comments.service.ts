@@ -168,7 +168,7 @@ export class CommentsService {
     await this.commentRepository.remove(comment);
   }
 
-    async approve(id: number, adminReply?: string): Promise<Comment> {
+  async approve(id: number, adminReply?: string): Promise<Comment> {
     const comment = await this.findOne(id);
 
     await this.commentRepository.update(id, {
@@ -180,7 +180,7 @@ export class CommentsService {
     return this.findOne(id);
   }
 
-   async reject(id: number, adminReply?: string): Promise<Comment> {
+  async reject(id: number, adminReply?: string): Promise<Comment> {
     const comment = await this.findOne(id);
 
     await this.commentRepository.update(id, {
@@ -191,4 +191,13 @@ export class CommentsService {
     return this.findOne(id);
   }
 
+  async adminReply(id: number, adminReply: string): Promise<Comment> {
+    const comment = await this.findOne(id);
+
+    await this.commentRepository.update(comment.id, {
+      adminReply,
+    });
+
+    return this.findOne(id);
+  }
 }
