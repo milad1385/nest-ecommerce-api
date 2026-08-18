@@ -10,6 +10,7 @@ import { ProductsModule } from './products/products.module';
 import { SellersModule } from './sellers/sellers.module';
 import { SellersRequestsModule } from './sellers-requests/sellers-requests.module';
 import { AttributesModule } from './attributes/attributes.module';
+import { CommentsModule } from './comments/comments.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,7 +34,8 @@ import { AttributesModule } from './attributes/attributes.module';
     ProductsModule,
     SellersModule,
     SellersRequestsModule,
-    AttributesModule
+    AttributesModule,
+    CommentsModule
   ],
 })
 export class AppModule {}
