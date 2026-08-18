@@ -1,30 +1,29 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Res,
+  Get,
   HttpStatus,
-  UseGuards,
-  Query,
+  Param,
+  Patch,
+  Post,
   Put,
+  Query,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-proudct.dto';
-import { UpdateProductDto } from './dto/update-proudct.dto';
 import type { Response } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
-import { FilterProductDto } from './dto/filter-product.dto';
 import { createPagination } from 'utils/func';
-import { ProductAttributeService } from './product-attribute.service';
 import { AddAttributesDto } from './dto/add-attributes.dto';
-import { plainToClass } from 'class-transformer';
+import { CreateProductDto } from './dto/create-proudct.dto';
+import { FilterProductDto } from './dto/filter-product.dto';
+import { UpdateProductDto } from './dto/update-proudct.dto';
+import { ProductAttributeService } from './product-attribute.service';
+import { ProductsService } from './products.service';
 
 @Controller('Products')
 export class ProductsController {
