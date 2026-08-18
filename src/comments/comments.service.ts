@@ -162,9 +162,22 @@ export class CommentsService {
     await this.commentRepository.update(id, dto);
     return this.findOne(id);
   }
-   async remove(id: number, userId: number): Promise<void> {
+  async remove(id: number, userId: number): Promise<void> {
     const comment = await this.findOne(id);
 
     await this.commentRepository.remove(comment);
   }
+
+    async approve(id: number, adminReply?: string): Promise<Comment> {
+    const comment = await this.findOne(id);
+
+    await this.commentRepository.update(id, {
+      status: CommentStatusEnum.APPROVED,
+      approvedAt: new Date(),
+      adminReply: adminReply || comment.adminReply,
+    });
+
+    return this.findOne(id);
+  }
+
 }
