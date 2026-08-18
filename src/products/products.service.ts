@@ -35,7 +35,6 @@ export class ProductsService {
     const product = await this.productRepository.findOneBy({ slug });
     if (product) throw new BadRequestException('محصولی با این اسلاگ وجود دارد');
 
-    // 2️⃣ ایجاد محصول
     const newProduct = this.productRepository.create({
       title,
       slug,
@@ -148,9 +147,6 @@ export class ProductsService {
       });
     }
 
-    // ==========================================
-    // 7️⃣ فیلتر تاریخ
-    // ==========================================
     if (createdFrom) {
       qb.andWhere('products.created_at >= :createdFrom', {
         createdFrom: new Date(createdFrom),
@@ -162,11 +158,7 @@ export class ProductsService {
       });
     }
 
-    // ==========================================
-    // 8️⃣ فیلتر دسته‌بندی (اصلاح شده)
-    // ==========================================
     if (categorySlugs) {
-      // ✅ تعریف نوع درست
       let slugs: string[] = [];
 
       // بررسی نوع categorySlugs
