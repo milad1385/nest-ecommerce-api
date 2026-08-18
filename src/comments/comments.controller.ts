@@ -27,8 +27,6 @@ import { createPagination } from 'utils/func';
 export class CommentsController {
   constructor(private commentsService: CommentsService) {}
 
-  // ======================== CREATE ========================
-
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(
