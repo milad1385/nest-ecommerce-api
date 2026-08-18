@@ -162,4 +162,9 @@ export class CommentsService {
     await this.commentRepository.update(id, dto);
     return this.findOne(id);
   }
+   async remove(id: number, userId: number): Promise<void> {
+    const comment = await this.findOne(id);
+
+    await this.commentRepository.remove(comment);
+  }
 }
