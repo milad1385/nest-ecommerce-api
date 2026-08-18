@@ -180,4 +180,15 @@ export class CommentsService {
     return this.findOne(id);
   }
 
+   async reject(id: number, adminReply?: string): Promise<Comment> {
+    const comment = await this.findOne(id);
+
+    await this.commentRepository.update(id, {
+      status: CommentStatusEnum.REJECTED,
+      adminReply: adminReply || comment.adminReply,
+    });
+
+    return this.findOne(id);
+  }
+
 }
