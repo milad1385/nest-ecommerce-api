@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CommentsService } from './comments.service';
-import { CommentsController } from './comments.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from 'src/products/products.module';
 import { SellersModule } from 'src/sellers/sellers.module';
 import { UsersModule } from 'src/users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommentsController } from './comments.controller';
+import { CommentsService } from './comments.service';
 import { Comment } from './entities/comment.entity';
+import { SellersRequestsModule } from 'src/sellers-requests/sellers-requests.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Comment } from './entities/comment.entity';
     ProductsModule,
     SellersModule,
     UsersModule,
+    SellersRequestsModule,
   ],
   controllers: [CommentsController],
   providers: [CommentsService],
