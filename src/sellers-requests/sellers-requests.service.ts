@@ -337,4 +337,28 @@ export class SellersRequestsService {
 
     return sellerRequest;
   }
+
+  async hasSellerThisProduct(
+    seller_id: number | undefined,
+    product_id: number,
+  ): Promise<boolean> {
+    if (!seller_id) return true;
+    const sellerRequest = await this.sellerRequestRepository.findOne({
+      where: {
+        seller: {
+          id: seller_id,
+        },
+        product: {
+          id: product_id,
+        },
+        status: SellerRequestEnums.ACCEPT,
+      },
+    });
+
+    if (!sellerRequest) {
+      throw new BadRequestException('این فروشنده این محصول را ندارد');
+    }
+
+    return true;
+  }
 }
