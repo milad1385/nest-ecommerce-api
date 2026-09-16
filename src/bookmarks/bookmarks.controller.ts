@@ -1,24 +1,22 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Patch,
   Body,
-  Param,
-  Query,
-  ParseIntPipe,
-  Req,
-  Res,
+  Controller,
+  Get,
   HttpStatus,
-  UseGuards,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { createPagination } from 'utils/func';
 import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { QueryBookmarkDto } from './dto/query-bookmark.dto';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { createPagination } from 'utils/func';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('bookmarks')
 export class BookmarksController {
