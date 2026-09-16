@@ -13,6 +13,7 @@ import { AttributesModule } from './attributes/attributes.module';
 import { CommentsModule } from './comments/comments.module';
 import { IpTrackerModule } from './ip-tracker/ip-tracker.module';
 import { IpTrackerMiddleware } from './ip-tracker/ip-tracker.middleware';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -39,6 +40,7 @@ import { IpTrackerMiddleware } from './ip-tracker/ip-tracker.middleware';
     AttributesModule,
     CommentsModule,
     IpTrackerModule,
+    BookmarksModule,
   ],
 })
 export class AppModule {
