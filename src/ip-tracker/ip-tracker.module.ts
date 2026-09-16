@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { IpTrackerService } from './ip-tracker.service';
-import { IpTrackerController } from './ip-tracker.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { IpTracker } from './entities/ip-tracker.entity';
 
 @Module({
-  controllers: [IpTrackerController],
+  imports: [TypeOrmModule.forFeature([IpTracker])],
   providers: [IpTrackerService],
+  exports: [IpTrackerService],
 })
 export class IpTrackerModule {}
