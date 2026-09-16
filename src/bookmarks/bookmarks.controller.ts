@@ -10,6 +10,7 @@ import {
   Req,
   Res,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { BookmarksService } from './bookmarks.service';
@@ -17,12 +18,14 @@ import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { QueryBookmarkDto } from './dto/query-bookmark.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { createPagination } from 'utils/func';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('bookmarks')
 export class BookmarksController {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
-  @Post('toggle')
+  @Post()
+  @UseGuards(JwtAuthGuard)
   async toggle(
     @Res() res: Response,
     @GetUser('id') userId: number,
@@ -35,11 +38,12 @@ export class BookmarksController {
       message: result
         ? 'محصول با موفقیت بوکمارک شد'
         : 'بوکمارک با موفقیت حذف شد',
-      data: null,
+      data: result,
     });
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async list(
     @Res() res: Response,
     @GetUser('id') userId: number,
@@ -62,6 +66,7 @@ export class BookmarksController {
   }
 
   @Get('check/:productId')
+  @UseGuards(JwtAuthGuard)
   async check(
     @Res() res: Response,
     @GetUser('id') userId: number,
@@ -80,6 +85,7 @@ export class BookmarksController {
   }
 
   @Patch(':productId/note')
+  @UseGuards(JwtAuthGuard)
   async updateNote(
     @Res() res: Response,
     @GetUser('id') userId: number,
