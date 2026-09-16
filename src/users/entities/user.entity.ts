@@ -13,6 +13,7 @@ import { Address } from 'src/address/entities/address.entity';
 import { Ticket } from 'src/tickets/entities/ticket.entity';
 import { Seller } from 'src/sellers/entities/seller.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -45,6 +46,9 @@ export class User {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
+  bookmarks: Bookmark[];
 
   @OneToOne(() => Seller, (seller) => seller.user)
   @JoinColumn()
