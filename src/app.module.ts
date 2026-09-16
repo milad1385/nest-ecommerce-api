@@ -15,6 +15,7 @@ import { IpTrackerModule } from './ip-tracker/ip-tracker.module';
 import { IpTrackerMiddleware } from './ip-tracker/ip-tracker.middleware';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { MenusModule } from './menus/menus.module';
+import { BasketsModule } from './baskets/baskets.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,6 +44,7 @@ import { MenusModule } from './menus/menus.module';
     IpTrackerModule,
     BookmarksModule,
     MenusModule,
+    BasketsModule,
   ],
 })
 export class AppModule {

@@ -1,4 +1,5 @@
 import { AttributeValue } from 'src/attributes/entities/attribute-value.entity';
+import { Basket } from 'src/baskets/entities/basket.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
@@ -58,6 +59,9 @@ export class Product {
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.product)
   bookmarks: Bookmark[];
+
+  @OneToMany(() => Basket, (basket) => basket.product)
+  baskets: Basket[];
 
   @CreateDateColumn()
   created_at: Date;

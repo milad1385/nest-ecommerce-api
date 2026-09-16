@@ -14,6 +14,7 @@ import { Ticket } from 'src/tickets/entities/ticket.entity';
 import { Seller } from 'src/sellers/entities/seller.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { Basket } from 'src/baskets/entities/basket.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -53,6 +54,9 @@ export class User {
   @OneToOne(() => Seller, (seller) => seller.user)
   @JoinColumn()
   seller: Seller;
+
+  @OneToMany(() => Basket, (basket) => basket.user)
+  baskets: Basket[];
 
   @CreateDateColumn()
   createdAt: Date;
