@@ -1,29 +1,32 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Delete,
   Body,
-  Param,
-  ParseIntPipe,
+  Controller,
+  Delete,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
   Res,
+  UseGuards
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { MenusService } from './menus.service';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
+import { MenusService } from './menus.service';
 
 @Controller('menus')
 export class MenusController {
   constructor(private readonly menusService: MenusService) {}
 
   @Post()
-  async create(
-    @Res() res: Response,
-    @Body() dto: CreateMenuDto,
-  ) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
+  async create(@Res() res: Response, @Body() dto: CreateMenuDto) {
     const menu = await this.menusService.create(dto);
 
     return res.status(HttpStatus.CREATED).json({
@@ -56,10 +59,7 @@ export class MenusController {
   }
 
   @Get('slug/:slug')
-  async findBySlug(
-    @Res() res: Response,
-    @Param('slug') slug: string,
-  ) {
+  async findBySlug(@Res() res: Response, @Param('slug') slug: string) {
     const menu = await this.menusService.findBySlug(slug);
 
     return res.status(HttpStatus.OK).json({
@@ -70,10 +70,7 @@ export class MenusController {
   }
 
   @Get(':id')
-  async findOne(
-    @Res() res: Response,
-    @Param('id') id: number,
-  ) {
+  async findOne(@Res() res: Response, @Param('id') id: number) {
     const menu = await this.menusService.findOne(+id);
 
     return res.status(HttpStatus.OK).json({
@@ -84,6 +81,8 @@ export class MenusController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
   async update(
     @Res() res: Response,
     @Param('id') id: number,
@@ -99,10 +98,9 @@ export class MenusController {
   }
 
   @Delete(':id')
-  async remove(
-    @Res() res: Response,
-    @Param('id') id: number,
-  ) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnums.ADMIN)
+  async remove(@Res() res: Response, @Param('id') id: number) {
     const result = await this.menusService.remove(+id);
 
     return res.status(HttpStatus.OK).json({
