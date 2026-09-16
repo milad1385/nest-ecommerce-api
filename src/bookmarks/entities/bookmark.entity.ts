@@ -13,7 +13,7 @@ import { User } from '../../users/entities/user.entity';
 import { Product } from 'src/products/entities/proudct.entity';
 
 @Entity('bookmarks')
-@Unique(['user_id', 'product_id'])
+@Unique(['user', 'product'])
 export class Bookmark {
   @PrimaryGeneratedColumn()
   id: number;
