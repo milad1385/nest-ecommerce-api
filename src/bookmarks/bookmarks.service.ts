@@ -25,7 +25,7 @@ export class BookmarksService {
     if (existing) {
       await this.bookmarkRepository.remove(existing);
 
-      return false;
+      return null;
     }
 
     const bookmark = this.bookmarkRepository.create({
@@ -43,7 +43,7 @@ export class BookmarksService {
       },
     });
 
-    return true;
+    return result;
   }
 
   async getUserBookmarks(
