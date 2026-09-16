@@ -11,6 +11,7 @@ import { SellersModule } from './sellers/sellers.module';
 import { SellersRequestsModule } from './sellers-requests/sellers-requests.module';
 import { AttributesModule } from './attributes/attributes.module';
 import { CommentsModule } from './comments/comments.module';
+import { IpTrackerModule } from './ip-tracker/ip-tracker.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,7 +36,8 @@ import { CommentsModule } from './comments/comments.module';
     SellersModule,
     SellersRequestsModule,
     AttributesModule,
-    CommentsModule
+    CommentsModule,
+    IpTrackerModule
   ],
 })
 export class AppModule {}
