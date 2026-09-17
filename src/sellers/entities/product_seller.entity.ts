@@ -19,7 +19,7 @@ export class ProductSeller {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'bigint' })
   price: number;
 
   @Column({ type: 'tinyint' })
@@ -36,7 +36,7 @@ export class ProductSeller {
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @OneToMany(() => Basket, (basket) => basket.seller)
+  @OneToMany(() => Basket, (basket) => basket.productSeller)
   baskets: Basket[];
 
   @CreateDateColumn({})
