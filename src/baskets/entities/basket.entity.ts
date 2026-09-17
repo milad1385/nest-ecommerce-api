@@ -8,10 +8,12 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'baskets' })
+@Unique(['user', 'productSeller'])
 export class Basket {
   @PrimaryGeneratedColumn('increment')
   id: number;
@@ -19,7 +21,7 @@ export class Basket {
   @Column({ type: 'mediumint', default: 0 })
   quantity: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'bigint' })
   price: number;
 
   @Column({ type: 'tinyint' })
@@ -38,8 +40,8 @@ export class Basket {
   @ManyToOne(() => ProductSeller, (productSeller) => productSeller.baskets, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'seller_id' })
-  seller: ProductSeller;
+  @JoinColumn({ name: 'product_seller_id' })
+  productSeller: ProductSeller;
 
   @CreateDateColumn()
   createdAt: Date;
