@@ -12,6 +12,7 @@ import {
 import { SellerStatusEnums } from '../enums/sellerStatusEnums.enum';
 import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { ProductSeller } from './product_seller.entity';
 
 @Entity({ name: 'sellers' })
 export class Seller {
@@ -49,6 +50,9 @@ export class Seller {
 
   @OneToMany(() => Comment, (comment) => comment.seller)
   comments: Comment[];
+
+  @OneToMany(() => ProductSeller, (productSeller) => productSeller.seller)
+  productSeller: ProductSeller[];
 
   @CreateDateColumn({})
   created_at: Date;

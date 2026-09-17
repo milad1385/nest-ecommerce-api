@@ -4,6 +4,7 @@ import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
+import { ProductSeller } from 'src/sellers/entities/product_seller.entity';
 import {
   Column,
   CreateDateColumn,
@@ -62,6 +63,9 @@ export class Product {
 
   @OneToMany(() => Basket, (basket) => basket.product)
   baskets: Basket[];
+
+  @OneToMany(() => ProductSeller, (productSeller) => productSeller.product)
+  sellers: ProductSeller[];
 
   @CreateDateColumn()
   created_at: Date;
