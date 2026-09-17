@@ -1,4 +1,5 @@
 import { Product } from 'src/products/entities/proudct.entity';
+import { ProductSeller } from 'src/sellers/entities/product_seller.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -33,6 +34,12 @@ export class Basket {
   })
   @JoinColumn({ name: 'product_id' })
   product: Product;
+
+  @ManyToOne(() => ProductSeller, (productSeller) => productSeller.baskets, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'seller_id' })
+  seller: ProductSeller;
 
   @CreateDateColumn()
   createdAt: Date;
