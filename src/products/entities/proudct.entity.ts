@@ -3,6 +3,7 @@ import { Basket } from 'src/baskets/entities/basket.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { OrderItem } from 'src/orders/entities/order-item.entity';
 import { SellersRequest } from 'src/sellers-requests/entities/sellers-request.entity';
 import { ProductSeller } from 'src/sellers/entities/product_seller.entity';
 import {
@@ -66,6 +67,9 @@ export class Product {
 
   @OneToMany(() => ProductSeller, (productSeller) => productSeller.product)
   sellers: ProductSeller[];
+
+  @OneToMany(() => OrderItem, (item) => item.product)
+  orderItems: OrderItem[];
 
   @CreateDateColumn()
   created_at: Date;
