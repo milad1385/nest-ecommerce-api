@@ -15,6 +15,7 @@ import { Seller } from 'src/sellers/entities/seller.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Basket } from 'src/baskets/entities/basket.entity';
+import { Order } from 'src/orders/entities/order.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -57,6 +58,9 @@ export class User {
 
   @OneToMany(() => Basket, (basket) => basket.user)
   baskets: Basket[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 
   @CreateDateColumn()
   createdAt: Date;
