@@ -203,7 +203,6 @@ export class BasketsService {
     };
   }
 
-
   async getBasketCount(userId: number) {
     const result = await this.basketRepository
       .createQueryBuilder('basket')
