@@ -12,6 +12,7 @@ import {
 import { Seller } from './seller.entity';
 import { Product } from 'src/products/entities/proudct.entity';
 import { Basket } from 'src/baskets/entities/basket.entity';
+import { OrderItem } from 'src/orders/entities/order-item.entity';
 
 @Entity({ name: 'product_seller' })
 @Unique(['product', 'seller'])
@@ -38,6 +39,9 @@ export class ProductSeller {
 
   @OneToMany(() => Basket, (basket) => basket.productSeller)
   baskets: Basket[];
+
+  @OneToMany(() => OrderItem, (item) => item.productSeller)
+  orderItems: OrderItem[];
 
   @CreateDateColumn({})
   created_at: Date;
