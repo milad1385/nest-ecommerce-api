@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { SellersService } from 'src/sellers/sellers.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateSellersRequestDto } from './dto/create-sellers-request.dto';
 import { GetSellersRequestsDto } from './dto/get-seller-request.dto';
 import { UpdateSellerRequestStatusDto } from './dto/update-seller-request-status.dto';
@@ -15,14 +15,18 @@ import { UpdateSellersRequestDto } from './dto/update-sellers-request.dto';
 import { SellersRequest } from './entities/sellers-request.entity';
 import { SellerRequestEnums } from './enums/sellers-requests-status-enums';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
+import { ProductSeller } from 'src/sellers/entities/product_seller.entity';
 
 @Injectable()
 export class SellersRequestsService {
   constructor(
     @InjectRepository(SellersRequest)
     private readonly sellerRequestRepository: Repository<SellersRequest>,
+    @InjectRepository(ProductSeller)
+    private readonly productSellerRepository: Repository<ProductSeller>,
     private readonly sellerService: SellersService,
     private readonly productService: ProductsService,
+    private readonly dataSource: DataSource,
   ) {}
   async create(
     createSellersRequestDto: CreateSellersRequestDto,
@@ -43,20 +47,6 @@ export class SellersRequestsService {
     if (sellerRequest) {
       throw new BadRequestException(
         'شما برای این محصول درخواست ثبت کرده اید لطفا منتظر نتیجه باشید',
-      );
-    }
-
-    const isAcceptRequest = await this.sellerRequestRepository.findOne({
-      where: {
-        status: SellerRequestEnums.ACCEPT,
-        seller: { id: seller.id },
-        product: { id: product_id },
-      },
-    });
-
-    if (isAcceptRequest) {
-      throw new BadRequestException(
-        'شما برای این محصول درخواست ثبت کرده اید و تایید شده است',
       );
     }
 
@@ -310,18 +300,63 @@ export class SellersRequestsService {
     updateStatusDto: UpdateSellerRequestStatusDto,
   ) {
     const { adminComment, status } = updateStatusDto;
-    const sellerRequest = await this.findOne(id);
 
-    sellerRequest.status = status;
-    if (adminComment) {
-      sellerRequest.adminComment = adminComment;
-    }
+    return await this.dataSource.transaction(async (manager) => {
+      const sellerRequest = await manager.findOne(SellersRequest, {
+        where: { id },
+        relations: { product: true, seller: true },
+      });
 
-    await this.sellerRequestRepository.save(sellerRequest);
+      if (!sellerRequest) {
+        throw new NotFoundException('درخواست فروشنده یافت نشد');
+      }
 
-    return await this.findOne(sellerRequest.id);
+      if (
+        sellerRequest.status === SellerRequestEnums.ACCEPT &&
+        status === SellerRequestEnums.ACCEPT
+      ) {
+        throw new BadRequestException('این درخواست قبلاً تایید شده است');
+      }
+      sellerRequest.status = status;
+      if (adminComment) {
+        sellerRequest.adminComment = adminComment;
+      }
+
+      if (status === SellerRequestEnums.ACCEPT) {
+        const existingProductSeller = await manager.findOne(ProductSeller, {
+          where: {
+            product: { id: sellerRequest.product.id },
+            seller: { id: sellerRequest.seller.id },
+          },
+        });
+
+        if (existingProductSeller) {
+          existingProductSeller.price = sellerRequest.price;
+          existingProductSeller.stock = sellerRequest.stock;
+          existingProductSeller.discount = sellerRequest.discount;
+
+          await manager.save(existingProductSeller);
+        } else {
+          const newProductSeller = manager.create(ProductSeller, {
+            product: sellerRequest.product,
+            seller: sellerRequest.seller,
+            price: sellerRequest.price,
+            stock: sellerRequest.stock,
+            discount: sellerRequest.discount,
+          });
+
+          await manager.save(newProductSeller);
+        }
+      }
+
+      await manager.save(sellerRequest);
+
+      return await manager.findOne(SellersRequest, {
+        where: { id: sellerRequest.id },
+        relations: { product: true, seller: true },
+      });
+    });
   }
-
   async remove(id: number) {
     const sellerRequest = await this.findOne(id);
 
