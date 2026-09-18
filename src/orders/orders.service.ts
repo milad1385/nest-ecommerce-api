@@ -16,6 +16,8 @@ import { Basket } from 'src/baskets/entities/basket.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { ProductSeller } from 'src/sellers/entities/product_seller.entity';
 import { HttpService } from '@nestjs/axios';
+import { StartPaymentDto } from './dto/start-payment.dto';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class OrdersService {
@@ -160,6 +162,31 @@ export class OrdersService {
         },
       });
     });
+  }
+
+  async startPayment(userId: number, dto: StartPaymentDto) {
+    const { orderId } = dto;
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: { user: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException('سفارشی با این آیدی یافت نشد');
+    }
+
+    const request = this.httpService.post(
+      `${process.env.ZIBAL_BASE_URL}/request`,
+      {
+        merchant: process.env.ZIBAL_MERCHANT_ID,
+        amount: order.final_price * 10,
+        callbackUrl: 'http://localhost:3000',
+        orderId: order.id,
+      },
+    );
+
+    const responseBody = await lastValueFrom(request);
+    return responseBody.data.trackId;
   }
 
   async findMyOrders(
