@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -9,27 +10,26 @@ import {
   Query,
   Res,
   UseGuards,
-  HttpStatus,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { CancelOrderDto } from './dto/cancel-order.dto';
-import { QueryOrderDto } from './dto/query-order.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { GetUser } from '../auth/decorators/get-user.decorator';
-import { createPagination } from 'utils/func';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
+import { createPagination } from 'utils/func';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CancelOrderDto } from './dto/cancel-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { QueryOrderDto } from './dto/query-order.dto';
+import { StartPaymentDto } from './dto/start-payment.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // 🛒 ایجاد سفارش از سبد
   @Post()
   async create(
     @Res() res: Response,
@@ -42,6 +42,24 @@ export class OrdersController {
       statusCode: HttpStatus.CREATED,
       message: 'سفارش با موفقیت ثبت شد',
       data: order,
+    });
+  }
+
+  @Post('payment')
+  async startPayment(
+    @Res() res: Response,
+    @Body() dto: StartPaymentDto,
+    @GetUser('id') userId: number,
+  ) {
+    const trackId = await this.ordersService.startPayment(userId, dto);
+
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: 'سفارش با موفقیت ثبت شد',
+      data: {
+        trackId,
+        paymentUrl: `${process.env.ZIBAL_URL}/start/${trackId}`,
+      },
     });
   }
 
