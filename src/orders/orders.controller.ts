@@ -24,6 +24,7 @@ import { QueryOrderDto } from './dto/query-order.dto';
 import { StartPaymentDto } from './dto/start-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrdersService } from './orders.service';
+import { VerifyPaymentDto } from './dto/verify-payment.dto';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -55,11 +56,28 @@ export class OrdersController {
 
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
-      message: 'سفارش با موفقیت ثبت شد',
+      message: 'لینک پرداخت با موفقیت ساخته شد',
       data: {
         trackId,
         paymentUrl: `${process.env.ZIBAL_URL}/start/${trackId}`,
       },
+    });
+  }
+
+  @Post('/verify-payment')
+  async verifyPayment(
+    @Body() verifyPayment: VerifyPaymentDto,
+    @Res() res: Response,
+  ) {
+    const responsePay = await this.ordersService.verifyPayment(
+      verifyPayment.trackId,
+      verifyPayment.orderId,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      data: responsePay,
+      message: 'تراکنش با موفقیت پردازش شد',
     });
   }
 
