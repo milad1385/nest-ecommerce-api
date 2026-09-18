@@ -15,6 +15,7 @@ import { QueryOrderDto } from './dto/query-order.dto';
 import { Basket } from 'src/baskets/entities/basket.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { ProductSeller } from 'src/sellers/entities/product_seller.entity';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class OrdersService {
@@ -33,6 +34,8 @@ export class OrdersService {
 
     @InjectRepository(ProductSeller)
     private readonly productSellerRepository: Repository<ProductSeller>,
+
+    private readonly httpService: HttpService,
 
     private readonly dataSource: DataSource,
   ) {}
@@ -281,7 +284,6 @@ export class OrdersService {
     return this.findOne(id);
   }
 
-
   async cancelOrder(userId: number, id: number, dto: CancelOrderDto) {
     const order = await this.orderRepository.findOne({
       where: { id, user: { id: userId } },
@@ -306,7 +308,6 @@ export class OrdersService {
 
       await manager.save(order);
 
-      // 👈 برگرداندن موجودی محصولات
       for (const item of order.items) {
         if (item.productSeller) {
           await manager.increment(
