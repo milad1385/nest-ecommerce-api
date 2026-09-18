@@ -107,8 +107,6 @@ export class OrdersService {
       };
     });
 
-    const trackingCode = this.generateTrackingCode();
-
     return await this.dataSource.transaction(async (manager) => {
       const order = manager.create(Order, {
         user: { id: userId },
@@ -118,7 +116,6 @@ export class OrdersService {
         final_price: finalPrice,
         status: OrderStatus.PENDING,
         payment_method: paymentMethod || null,
-        tracking_code: trackingCode,
         note: note || null,
       });
 
@@ -187,6 +184,36 @@ export class OrdersService {
 
     const responseBody = await lastValueFrom(request);
     return responseBody.data.trackId;
+  }
+
+  async verifyPayment(trackId: number, orderId: number) {
+    const request = this.httpService.post(
+      `${process.env.ZIBAL_BASE_URL}/verify`,
+      { merchant: process.env.ZIBAL_MERCHANT_ID, trackId: trackId },
+    );
+
+    const responseBody = await lastValueFrom(request);
+
+    if (responseBody.data.result === 100) {
+      const order = await this.orderRepository.findOne({
+        where: { id: orderId },
+      });
+
+      if (!order) {
+        throw new NotFoundException('سفارشی با این آیدی یافت نشد');
+      }
+
+      if (order.status === OrderStatus.PAID) {
+        return responseBody.data;
+      }
+
+      order.status = OrderStatus.PAID;
+      order.paid_at = new Date();
+      order.tracking_code = `${trackId}`;
+      await this.orderRepository.save(order);
+    }
+
+    return responseBody.data;
   }
 
   async findMyOrders(
@@ -348,14 +375,5 @@ export class OrdersService {
     });
 
     return this.findOne(id, userId);
-  }
-
-  private generateTrackingCode(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const random = Math.floor(100000 + Math.random() * 900000);
-    return `ORD-${year}${month}${day}-${random}`;
   }
 }
