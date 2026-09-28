@@ -5,6 +5,7 @@
 
 # Logs
 logs
+*.yaml
 *.log
 npm-debug.log*
 pnpm-debug.log*
