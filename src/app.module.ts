@@ -17,6 +17,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { MenusModule } from './menus/menus.module';
 import { BasketsModule } from './baskets/baskets.module';
 import { OrdersModule } from './orders/orders.module';
+import { ImageKitModule } from './config/imagekit/imagekit.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -47,6 +48,7 @@ import { OrdersModule } from './orders/orders.module';
     MenusModule,
     BasketsModule,
     OrdersModule,
+    ImageKitModule
   ],
 })
 export class AppModule {
