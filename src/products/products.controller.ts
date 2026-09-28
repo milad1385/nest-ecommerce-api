@@ -2,15 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Put,
   Query,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -24,8 +29,10 @@ import { FilterProductDto } from './dto/filter-product.dto';
 import { UpdateProductDto } from './dto/update-proudct.dto';
 import { ProductAttributeService } from './product-attribute.service';
 import { ProductsService } from './products.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
-@Controller('Products')
+@Controller('products')
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
@@ -35,11 +42,26 @@ export class ProductsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnums.ADMIN)
+  @UseInterceptors(FileInterceptor('poster', { storage: memoryStorage() }))
   async create(
     @Res() res: Response,
     @Body() createProductDto: CreateProductDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        fileIsRequired: true,
+      }),
+    )
+    poster: Express.Multer.File,
   ) {
-    const product = await this.productsService.create(createProductDto);
+    const product = await this.productsService.create(
+      createProductDto,
+      poster.buffer,
+      poster.originalname,
+    );
 
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,

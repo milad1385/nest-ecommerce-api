@@ -12,6 +12,7 @@ import { UpdateProductDto } from './dto/update-proudct.dto';
 import { Product } from './entities/proudct.entity';
 import { ProductAttributeService } from './product-attribute.service';
 import { plainToClass } from 'class-transformer';
+import { ImageKitService } from 'src/config/imagekit/imagekit.service';
 
 @Injectable()
 export class ProductsService {
@@ -21,8 +22,13 @@ export class ProductsService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly productAttributeService: ProductAttributeService,
+    private readonly imageKitService: ImageKitService,
   ) {}
-  async create(createProductDto: CreateProductDto) {
+  async create(
+    createProductDto: CreateProductDto,
+    posterBuffer?: Buffer,
+    posterName?: string,
+  ) {
     const {
       title,
       slug,
@@ -32,6 +38,16 @@ export class ProductsService {
       attributes,
     } = createProductDto;
 
+    let posterUrl: string | undefined;
+
+    if (posterBuffer && posterName) {
+      const uploadResult = await this.imageKitService.uploadImage(
+        posterBuffer,
+        posterName,
+      );
+      posterUrl = uploadResult.url;
+    }
+
     const product = await this.productRepository.findOneBy({ slug });
     if (product) throw new BadRequestException('محصولی با این اسلاگ وجود دارد');
 
@@ -40,6 +56,7 @@ export class ProductsService {
       slug,
       shortDescription,
       description,
+      poster: posterUrl,
     });
 
     if (categoryIds && categoryIds.length > 0) {

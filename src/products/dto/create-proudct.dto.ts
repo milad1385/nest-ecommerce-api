@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
@@ -34,8 +35,14 @@ export class CreateProductDto {
   slug: string;
 
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map((id) => parseInt(id.trim(), 10));
+    }
+    return value;
+  })
   @IsArray({ message: 'آیدی دسته بندی ها باید آرایه ای از اعداد باشد' })
-  categoryIds: number[];
+  categoryIds?: number[];
 
   @IsOptional()
   @IsObject({ message: 'ویژگی‌ها باید یک شیء باشند' })

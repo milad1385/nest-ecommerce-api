@@ -31,6 +31,9 @@ export class Product {
   @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'text', nullable: true })
+  poster?: string;
+
   @Column({ unique: true })
   slug: string;
 
