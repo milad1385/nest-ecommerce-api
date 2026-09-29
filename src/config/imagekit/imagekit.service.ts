@@ -1,6 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import ImageKit, { toFile } from '@imagekit/nodejs';
+
+export interface UploadResult {
+  url: string;
+  fileId: string;
+  name: string;
+  thumbnailUrl?: string;
+}
 
 @Injectable()
 export class ImageKitService {
@@ -12,25 +19,18 @@ export class ImageKitService {
     });
   }
 
-  async uploadImage(file: Buffer, fileName: string) {
-    try {
-      const uploadableFile = await toFile(file, fileName);
-      return await this.client.files.upload({
-        file: uploadableFile,
-        fileName,
-      });
-    } catch (error) {
-      console.error('ImageKit upload error:', error);
-      throw new InternalServerErrorException('Failed to upload image');
-    }
-  }
+  async uploadImage(file: Buffer, fileName: string): Promise<UploadResult> {
+    const uploadableFile = await toFile(file, fileName);
+    const result = await this.client.files.upload({
+      file: uploadableFile,
+      fileName,
+    });
 
-  async deleteFile(fileId: string) {
-    try {
-      return await this.client.files.delete(fileId);
-    } catch (error) {
-      console.error('ImageKit delete error:', error);
-      throw new InternalServerErrorException('Failed to delete image');
-    }
+    return {
+      url: result.url!,
+      fileId: result.fileId!,
+      name: result.name!,
+      thumbnailUrl: result.thumbnailUrl,
+    };
   }
 }
