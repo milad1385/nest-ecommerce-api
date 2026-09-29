@@ -26,8 +26,8 @@ export class ProductsService {
   ) {}
   async create(
     createProductDto: CreateProductDto,
-    posterBuffer?: Buffer,
-    posterName?: string,
+    poster?: Express.Multer.File,
+    gallery: Express.Multer.File[] = [],
   ) {
     const {
       title,
@@ -39,13 +39,26 @@ export class ProductsService {
     } = createProductDto;
 
     let posterUrl: string | undefined;
+    const galleryUrls: string[] = [];
 
-    if (posterBuffer && posterName) {
+    if (poster) {
       const uploadResult = await this.imageKitService.uploadImage(
-        posterBuffer,
-        posterName,
+        poster.buffer,
+        poster.originalname,
       );
       posterUrl = uploadResult.url;
+    }
+
+    if (gallery.length > 0) {
+      const uploadResults = await Promise.all(
+        gallery.map((img) =>
+          this.imageKitService.uploadImage(img.buffer, img.originalname),
+        ),
+      );
+
+      for (const result of uploadResults) {
+        galleryUrls.push(result.url);
+      }
     }
 
     const product = await this.productRepository.findOneBy({ slug });
@@ -57,6 +70,7 @@ export class ProductsService {
       shortDescription,
       description,
       poster: posterUrl,
+      galleryUrls,
     });
 
     if (categoryIds && categoryIds.length > 0) {

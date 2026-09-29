@@ -2,18 +2,15 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
   HttpStatus,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   Patch,
   Post,
   Put,
   Query,
   Res,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,6 +18,8 @@ import type { Response } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { FileFieldsUploadInterceptor } from 'src/common/interceptor/image/file-fields-upload.interceptor';
+import { FileFieldsValidationPipe } from 'src/common/pipes/image/file-fields-validation.pipe';
 import { UserRoleEnums } from 'src/users/enums/userRoleEnums';
 import { createPagination } from 'utils/func';
 import { AddAttributesDto } from './dto/add-attributes.dto';
@@ -29,8 +28,6 @@ import { FilterProductDto } from './dto/filter-product.dto';
 import { UpdateProductDto } from './dto/update-proudct.dto';
 import { ProductAttributeService } from './product-attribute.service';
 import { ProductsService } from './products.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 
 @Controller('products')
 export class ProductsController {
@@ -42,25 +39,34 @@ export class ProductsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnums.ADMIN)
-  @UseInterceptors(FileInterceptor('poster', { storage: memoryStorage() }))
+  @UseInterceptors(
+    FileFieldsUploadInterceptor([
+      { name: 'poster', maxCount: 1 },
+      { name: 'gallery', maxCount: 10 },
+    ]),
+  )
   async create(
     @Res() res: Response,
     @Body() createProductDto: CreateProductDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+    @UploadedFiles(
+      new FileFieldsValidationPipe({
+        fields: [
+          { name: 'poster', required: false, maxCount: 1 },
+          { name: 'gallery', required: false, maxCount: 10 },
         ],
-        fileIsRequired: true,
       }),
     )
-    poster: Express.Multer.File,
+    files: {
+      poster?: Express.Multer.File[];
+      gallery?: Express.Multer.File[];
+    },
   ) {
+    const poster = files.poster?.[0];
+    const gallery = files.gallery ?? [];
     const product = await this.productsService.create(
       createProductDto,
-      poster.buffer,
-      poster.originalname,
+      poster,
+      gallery,
     );
 
     return res.status(HttpStatus.CREATED).json({
