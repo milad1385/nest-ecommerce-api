@@ -34,6 +34,9 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   poster?: string;
 
+  @Column('json', { nullable: true })
+  galleryUrls: string[];
+
   @Column({ unique: true })
   slug: string;
 
