@@ -92,7 +92,7 @@ export class User {
       referencedColumnName: 'id',
     },
   })
-  permission: Permission[];
+  permissions: Permission[];
 
   @CreateDateColumn()
   createdAt: Date;
