@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto, GetUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -70,6 +74,22 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: [{ mobile }, { email }, { username }],
     });
+    return user;
+  }
+
+  async findUserPermissionById(userId: number): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: {
+        roles: {
+          permissions: true,
+        },
+        permissions: true,
+      },
+    });
+
+    if (!user) throw new NotFoundException('کاربری با این آیدی یافت نشد');
+
     return user;
   }
 
