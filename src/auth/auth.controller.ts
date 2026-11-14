@@ -17,7 +17,11 @@ import type { Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetUser } from './decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
+import { Permission } from './decorators/permission.decorator';
+import { Public } from './decorators/public.decorator';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -32,6 +36,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('register')
   async register(@Res() res: Response, @Body() registerDto: RegisterDto) {
     const register = await this.authService.register(registerDto);
@@ -42,6 +47,7 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Post('login')
   async login(@Res() res: Response, @Body() loginDto: LoginDto) {
     const login = await this.authService.login(loginDto);
@@ -49,6 +55,18 @@ export class AuthController {
       statusCode: HttpStatus.OK,
       message: 'ورود با موفقیت انجام شد',
       data: login,
+    });
+  }
+
+  @ApiOperation({summary:"این مسیر برای دریافت مجوز های یک کاربر خاص می باشد"})
+  @Permission('user.read')
+  @Get('permissions/user/:id')
+  async getUserPermission(@Res() res: Response, @Param('id') userId: number) {
+    const roles = await this.authService.getUserPermission(userId);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'با موفقیت دریافت شد',
+      data: roles,
     });
   }
 }
