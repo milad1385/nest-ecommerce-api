@@ -10,6 +10,8 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { RolesGuard } from './guards/roles.guard';
+import { PermissionGuard } from './guards/permission.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -26,7 +28,13 @@ import { RolesGuard } from './guards/roles.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtAuthGuard,
+    RolesGuard,
+    { provide: APP_GUARD, useClass: PermissionGuard },
+  ],
   exports: [JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

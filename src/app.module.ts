@@ -18,6 +18,8 @@ import { MenusModule } from './menus/menus.module';
 import { BasketsModule } from './baskets/baskets.module';
 import { OrdersModule } from './orders/orders.module';
 import { ImageKitModule } from './config/imagekit/imagekit.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -48,8 +50,10 @@ import { ImageKitModule } from './config/imagekit/imagekit.module';
     MenusModule,
     BasketsModule,
     OrdersModule,
-    ImageKitModule
+    ImageKitModule,
   ],
+
+  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
