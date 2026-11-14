@@ -1,25 +1,21 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Res,
   HttpStatus,
-  UseGuards,
+  Param,
+  Post,
+  Res
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register-auth.dto';
-import { LoginDto } from './dto/login-auth.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { GetUser } from './decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
+import { AuthService } from './auth.service';
+import { GetUser } from './decorators/get-user.decorator';
 import { Permission } from './decorators/permission.decorator';
 import { Public } from './decorators/public.decorator';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dto/login-auth.dto';
+import { RegisterDto } from './dto/register-auth.dto';
 
 @ApiBearerAuth()
 @ApiTags("احراز هویت")
@@ -28,7 +24,6 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   async getMe(@Res() res: Response, @GetUser() user: User) {
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
