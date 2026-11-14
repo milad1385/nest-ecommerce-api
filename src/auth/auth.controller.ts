@@ -19,9 +19,10 @@ import { GetUser } from './decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { Permission } from './decorators/permission.decorator';
 import { Public } from './decorators/public.decorator';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiBearerAuth()
+@ApiTags("احراز هویت")
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
