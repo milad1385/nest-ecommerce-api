@@ -67,12 +67,31 @@ export class RolesService {
     throw new BadRequestException('نقش مورد نظر نا معتبر است');
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll() {
+    const roles = await this.roleRepository.find({
+      relations: {
+        permissions: true,
+      },
+    });
+
+    return roles;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findOne(id: number): Promise<Role> {
+    const role = await this.roleRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        permissions: true,
+      },
+    });
+
+    if (!role) {
+      throw new NotFoundException('نقشی با این آیدی یافت نشد');
+    }
+
+    return role;
   }
 
   update(id: number, updateRoleDto: UpdateRoleDto) {

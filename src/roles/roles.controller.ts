@@ -48,14 +48,28 @@ export class RolesController {
     });
   }
 
+  @ApiOperation({ summary: 'برای دریافت تمام نقش ها می باشد' })
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  async findAll(@Res() res: Response) {
+    const roles = await this.rolesService.findAll();
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'نقش ها با موفقیت دریافت شد',
+      data: roles,
+    });
   }
 
+  @ApiOperation({ summary: 'برای دریافت نقش خاصی استفاده می شود' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  async findOne(@Res() res: Response, @Param('id') id: number) {
+    const role = await this.rolesService.findOne(id);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'نقش دریافت شد',
+      data: role,
+    });
   }
 
   @ApiOperation({ summary: 'برای دریافت مجوز های یک کاربر خاص می باشد' })
