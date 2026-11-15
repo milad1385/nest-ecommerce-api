@@ -94,7 +94,7 @@ export class RolesController {
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
-      message: 'نقش با موفقیت از کاربر حذف شد',
+      message: 'نقش با موفقیت آپدیت شد',
       data: newRole,
     });
   }
