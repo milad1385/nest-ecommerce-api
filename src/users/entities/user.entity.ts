@@ -18,8 +18,8 @@ import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Basket } from 'src/baskets/entities/basket.entity';
 import { Order } from 'src/orders/entities/order.entity';
-import { Role } from 'src/auth/entities/role.entity';
-import { Permission } from 'src/auth/entities/permission.entity';
+import { Role } from 'src/roles/entities/role.entity';
+import { Permission } from 'src/roles/entities/permission.entity';
 
 @Entity({ name: 'users' })
 export class User {

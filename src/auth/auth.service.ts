@@ -70,20 +70,4 @@ export class AuthService {
       throw error;
     }
   }
-
-  async getUserPermission(userId: number){
-    const user = await this.userService.findUserPermissionById(userId);
-
-    const permissions = new Set();
-
-    user.roles.forEach((role) =>
-      role.permissions.forEach((permission) =>
-        permissions.add(permission.name),
-      ),
-    );
-
-    user.permissions.forEach((permission) => permissions.add(permission.name));
-
-    return Array.from(permissions);
-  }
 }

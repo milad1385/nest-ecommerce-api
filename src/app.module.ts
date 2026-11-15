@@ -20,6 +20,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ImageKitModule } from './config/imagekit/imagekit.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesModule } from './roles/roles.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -51,6 +52,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     BasketsModule,
     OrdersModule,
     ImageKitModule,
+    RolesModule,
   ],
 
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],

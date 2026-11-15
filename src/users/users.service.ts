@@ -10,6 +10,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserRoleEnums } from './enums/userRoleEnums';
 import bcrypt from 'bcryptjs';
+import { Role } from 'src/roles/entities/role.entity';
 
 @Injectable()
 export class UsersService {
@@ -91,6 +92,26 @@ export class UsersService {
     if (!user) throw new NotFoundException('کاربری با این آیدی یافت نشد');
 
     return user;
+  }
+
+  async addRoleToUser(user_id: number, role: Role) {
+    const user = await this.userRepository.findOne({
+      where: { id: user_id },
+      relations: {
+        roles: {
+          permissions: true,
+        },
+        permissions: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('کاربری با این آیدی یافت نشد');
+    }
+    
+    user.roles.push(role);
+
+    return await this.userRepository.save(user);
   }
 
   async findOneByMobileNumber(mobile: string) {

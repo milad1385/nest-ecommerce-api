@@ -5,14 +5,14 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { RolesService } from 'src/roles/roles.service';
 import { PERMISSION_KEY } from '../decorators/permission.decorator';
-import { AuthService } from '../auth.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly authService: AuthService,
+    private readonly rolesService: RolesService,
   ) {}
   async canActivate(context: ExecutionContext) {
     const requiredPermission = this.reflector.getAllAndOverride<unknown[]>(
@@ -24,7 +24,7 @@ export class PermissionGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    const permissions = await this.authService.getUserPermission(user.id);
+    const permissions = await this.rolesService.getUserPermission(user.id);
 
     const hasPermission = requiredPermission.every((permission) =>
       permissions.includes(permission),
