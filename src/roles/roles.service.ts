@@ -11,14 +11,18 @@ import { Role } from './entities/role.entity';
 import { Repository } from 'typeorm';
 import { AddRoleToUser } from './dto/addRoleToUser.dto';
 import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
+import { CreatePermissionDto } from './dto/create-permission.dto';
+import { Permission } from './entities/permission.entity';
 
 @Injectable()
 export class RolesService {
   constructor(
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
     private readonly userService: UsersService,
   ) {}
-  async create(createRoleDto: CreateRoleDto) {
+  async createRole(createRoleDto: CreateRoleDto) {
     const { name } = createRoleDto;
     const role = await this.roleRepository.findOne({ where: { name } });
 
@@ -67,7 +71,7 @@ export class RolesService {
     throw new BadRequestException('نقش مورد نظر نا معتبر است');
   }
 
-  async findAll() {
+  async findAllRoles() {
     const roles = await this.roleRepository.find({
       relations: {
         permissions: true,
@@ -77,7 +81,7 @@ export class RolesService {
     return roles;
   }
 
-  async findOne(id: number): Promise<Role> {
+  async findOneRole(id: number): Promise<Role> {
     const role = await this.roleRepository.findOne({
       where: {
         id,
@@ -94,7 +98,7 @@ export class RolesService {
     return role;
   }
 
-  async update(id: number, updateRoleDto: UpdateRoleDto) {
+  async updateRole(id: number, updateRoleDto: UpdateRoleDto) {
     const { name } = updateRoleDto;
     const role = await this.roleRepository.findOne({ where: { id } });
 
@@ -106,10 +110,6 @@ export class RolesService {
     }
 
     return await this.roleRepository.save(role);
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} role`;
   }
 
   async getUserPermission(userId: number) {
@@ -126,5 +126,29 @@ export class RolesService {
     user.permissions.forEach((permission) => permissions.add(permission.name));
 
     return Array.from(permissions);
+  }
+
+  async createPermission(createPermissionDto: CreatePermissionDto) {
+    const names = Array.isArray(createPermissionDto.name)
+      ? createPermissionDto.name
+      : [createPermissionDto.name];
+
+    const existing = await this.permissionRepository.find({
+      where: names.map((n) => ({ name: n })),
+      select: {
+        name: true,
+      },
+    });
+    const existingNames = new Set(existing.map((e) => e.name));
+    const newNames = names.filter((n) => !existingNames.has(n));
+
+    if (newNames.length === 0)
+      throw new BadRequestException('نقش با این نام وجود دارد');
+
+    await this.permissionRepository.insert(newNames.map((n) => ({ name: n })));
+
+    return this.permissionRepository.find({
+      where: newNames.map((n) => ({ name: n })),
+    });
   }
 }

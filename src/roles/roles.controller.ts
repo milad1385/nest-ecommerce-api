@@ -17,6 +17,7 @@ import { Permission } from 'src/auth/decorators/permission.decorator';
 import type { Response } from 'express';
 import { AddRoleToUser } from './dto/addRoleToUser.dto';
 import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
+import { CreatePermissionDto } from './dto/create-permission.dto';
 
 @ApiBearerAuth()
 @ApiTags('نقش و دسترسی ها')
@@ -26,8 +27,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'برای ساخت نقش جدید است' })
   @Post()
-  async create(@Res() res: Response, @Body() createRoleDto: CreateRoleDto) {
-    const newRole = await this.rolesService.create(createRoleDto);
+  async createRole(@Res() res: Response, @Body() createRoleDto: CreateRoleDto) {
+    const newRole = await this.rolesService.createRole(createRoleDto);
 
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
@@ -50,8 +51,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'برای دریافت تمام نقش ها می باشد' })
   @Get()
-  async findAll(@Res() res: Response) {
-    const roles = await this.rolesService.findAll();
+  async findAllRoles(@Res() res: Response) {
+    const roles = await this.rolesService.findAllRoles();
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -62,8 +63,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'برای دریافت نقش خاصی استفاده می شود' })
   @Get(':id')
-  async findOne(@Res() res: Response, @Param('id') id: number) {
-    const role = await this.rolesService.findOne(id);
+  async findOneRole(@Res() res: Response, @Param('id') id: number) {
+    const role = await this.rolesService.findOneRole(id);
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -86,12 +87,12 @@ export class RolesController {
 
   @ApiOperation({ summary: 'برای آپدیت نقش استفاده می شود' })
   @Patch(':id')
-  async update(
+  async updateRole(
     @Res() res: Response,
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ) {
-    const newRole = await this.rolesService.update(+id, updateRoleDto);
+    const newRole = await this.rolesService.updateRole(+id, updateRoleDto);
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -112,6 +113,22 @@ export class RolesController {
       statusCode: HttpStatus.OK,
       message: 'نقش با موفقیت از کاربر حذف شد',
       data: role,
+    });
+  }
+
+  @ApiOperation({ summary: 'برای ساخت مجوز استفاده می شود' })
+  @Post('permission')
+  async createPermission(
+    @Res() res: Response,
+    @Body() createPermissionDto: CreatePermissionDto,
+  ) {
+    const newPermission =
+      await this.rolesService.createPermission(createPermissionDto);
+
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: 'مجوز با موفقیت ساخته شد',
+      data: newPermission,
     });
   }
 }
