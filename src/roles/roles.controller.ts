@@ -84,6 +84,7 @@ export class RolesController {
     });
   }
 
+  @ApiOperation({ summary: 'برای آپدیت نقش استفاده می شود' })
   @Patch(':id')
   async update(
     @Res() res: Response,
