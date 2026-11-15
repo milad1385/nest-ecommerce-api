@@ -8,11 +8,12 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { UsersService } from 'src/users/users.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { AddRoleToUser } from './dto/addRoleToUser.dto';
 import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { Permission } from './entities/permission.entity';
+import { AddPermissionToRole } from './dto/addPermissionToRole.dto';
 
 @Injectable()
 export class RolesService {
@@ -150,5 +151,38 @@ export class RolesService {
     return this.permissionRepository.find({
       where: newNames.map((n) => ({ name: n })),
     });
+  }
+
+  async addPermissionToRole(dto: AddPermissionToRole) {
+    const { role_id, permission_ids } = dto;
+
+    const role = await this.roleRepository.findOne({
+      where: { id: role_id },
+      relations: { permissions: true },
+    });
+
+    if (!role) {
+      throw new NotFoundException('نقشی با این آیدی یافت نشد');
+    }
+
+    const permissions = await this.permissionRepository.find({
+      where: { id: In(permission_ids) },
+    });
+
+    if (permissions.length !== permission_ids.length) {
+      throw new NotFoundException('بعضی از مجوزها یافت نشدند');
+    }
+
+    const existingIds = new Set(role.permissions.map((p) => p.id));
+    const newPermissions = permissions.filter((p) => !existingIds.has(p.id));
+
+    if (newPermissions.length === 0) {
+      throw new BadRequestException(
+        'همه‌ی این مجوزها از قبل به نقش داده شده‌اند',
+      );
+    }
+
+    role.permissions = [...role.permissions, ...newPermissions];
+    return await this.roleRepository.save(role);
   }
 }

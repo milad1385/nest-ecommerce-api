@@ -18,6 +18,7 @@ import type { Response } from 'express';
 import { AddRoleToUser } from './dto/addRoleToUser.dto';
 import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
+import { AddPermissionToRole } from './dto/addPermissionToRole.dto';
 
 @ApiBearerAuth()
 @ApiTags('نقش و دسترسی ها')
@@ -129,6 +130,22 @@ export class RolesController {
       statusCode: HttpStatus.CREATED,
       message: 'مجوز با موفقیت ساخته شد',
       data: newPermission,
+    });
+  }
+
+  @ApiOperation({ summary: 'برای اضافه کردن مجوز ها به نقش است' })
+  @Post('permission/append-to-role')
+  async addPermissionToRole(
+    @Res() res: Response,
+    @Body() addPermissionToRole: AddPermissionToRole,
+  ) {
+    const role =
+      await this.rolesService.addPermissionToRole(addPermissionToRole);
+
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: 'مجوز با موفقیت به نقش  اضافه شد',
+      data: role,
     });
   }
 }
