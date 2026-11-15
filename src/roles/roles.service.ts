@@ -14,6 +14,7 @@ import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { Permission } from './entities/permission.entity';
 import { AddPermissionToRole } from './dto/addPermissionToRole.dto';
+import { RemovePermissionFromRoleDto } from './dto/remove-permission-from-role.dto';
 
 @Injectable()
 export class RolesService {
@@ -183,6 +184,38 @@ export class RolesService {
     }
 
     role.permissions = [...role.permissions, ...newPermissions];
+    return await this.roleRepository.save(role);
+  }
+
+  async removePermissionFromRole(dto: RemovePermissionFromRoleDto) {
+    const { role_id, permission_ids } = dto;
+
+    const role = await this.roleRepository.findOne({
+      where: { id: role_id },
+      relations: { permissions: true },
+    });
+
+    if (!role) {
+      throw new NotFoundException('نقشی با این آیدی یافت نشد');
+    }
+
+    const permissions = await this.permissionRepository.find({
+      where: { id: In(permission_ids) },
+    });
+
+    if (permissions.length !== permission_ids.length) {
+      throw new NotFoundException('بعضی از مجوزها یافت نشدند');
+    }
+
+    const existingIds = new Set(role.permissions.map((p) => p.id));
+    const toRemove = permissions.filter((p) => existingIds.has(p.id));
+
+    if (toRemove.length === 0) {
+      throw new BadRequestException('هیچ‌کدام از این مجوزها روی نقش نیستند');
+    }
+
+    const removeIds = new Set(toRemove.map((p) => p.id));
+    role.permissions = role.permissions.filter((p) => !removeIds.has(p.id));
     return await this.roleRepository.save(role);
   }
 }

@@ -19,6 +19,7 @@ import { AddRoleToUser } from './dto/addRoleToUser.dto';
 import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { AddPermissionToRole } from './dto/addPermissionToRole.dto';
+import { RemovePermissionFromRoleDto } from './dto/remove-permission-from-role.dto';
 
 @ApiBearerAuth()
 @ApiTags('نقش و دسترسی ها')
@@ -145,6 +146,23 @@ export class RolesController {
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
       message: 'مجوز با موفقیت به نقش  اضافه شد',
+      data: role,
+    });
+  }
+
+  @ApiOperation({ summary: 'برای حذف کردن مجوز ها به نقش است' })
+  @Delete('permission/remove-to-role')
+  async removePermissionFromRole(
+    @Res() res: Response,
+    @Body() removePermissionFromRoleDto: RemovePermissionFromRoleDto,
+  ) {
+    const role = await this.rolesService.removePermissionFromRole(
+      removePermissionFromRoleDto,
+    );
+
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: 'مجوز با موفقیت از نقش  حذف شد',
       data: role,
     });
   }
