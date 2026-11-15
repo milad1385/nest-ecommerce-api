@@ -108,8 +108,28 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('کاربری با این آیدی یافت نشد');
     }
-    
+
     user.roles.push(role);
+
+    return await this.userRepository.save(user);
+  }
+
+  async deleteRoleFromUser(user_id: number, role_id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: user_id },
+      relations: {
+        roles: {
+          permissions: true,
+        },
+        permissions: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('کاربری با این آیدی یافت نشد');
+    }
+
+    user.roles = user.roles.filter((role) => role.id !== role_id);
 
     return await this.userRepository.save(user);
   }

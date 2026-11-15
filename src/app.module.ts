@@ -58,7 +58,7 @@ import { RolesModule } from './roles/roles.module';
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(IpTrackerMiddleware).forRoutes('*');
-  }
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(IpTrackerMiddleware).forRoutes('*');
+  // }
 }

@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from 'src/auth/decorators/permission.decorator';
 import type { Response } from 'express';
 import { AddRoleToUser } from './dto/addRoleToUser.dto';
+import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
 
 @ApiBearerAuth()
 @ApiTags('نقش و دسترسی ها')
@@ -23,6 +24,7 @@ import { AddRoleToUser } from './dto/addRoleToUser.dto';
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
+  @ApiOperation({ summary: 'برای ساخت نقش جدید است' })
   @Post()
   async create(@Res() res: Response, @Body() createRoleDto: CreateRoleDto) {
     const newRole = await this.rolesService.create(createRoleDto);
@@ -34,14 +36,15 @@ export class RolesController {
     });
   }
 
-  @Post('/append-to-user')
+  @ApiOperation({ summary: 'برای اضافه کردن نقش به کاربر است' })
+  @Post('append-to-user')
   async addRoleToUser(@Res() res: Response, @Body() addRole: AddRoleToUser) {
-    const newRole = await this.rolesService.addRoleToUser(addRole);
+    const role = await this.rolesService.addRoleToUser(addRole);
 
     return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
       message: 'نقش با موفقیت به کاربر داده شد',
-      data: newRole,
+      data: role,
     });
   }
 
@@ -72,8 +75,18 @@ export class RolesController {
     return this.rolesService.update(+id, updateRoleDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rolesService.remove(+id);
+  @ApiOperation({ summary: 'برای حذف نقش از کاربر است' })
+  @Delete('delete-from-user')
+  async deleteRoleFromUser(
+    @Res() res: Response,
+    @Body() deleteRole: DeleteRoleFromUser,
+  ) {
+    const role = await this.rolesService.deleteRoleFromUser(deleteRole);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'نقش با موفقیت از کاربر حذف شد',
+      data: role,
+    });
   }
 }

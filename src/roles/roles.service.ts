@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { Repository } from 'typeorm';
 import { AddRoleToUser } from './dto/addRoleToUser.dto';
+import { DeleteRoleFromUser } from './dto/deleteRoleFromUser.dto';
 
 @Injectable()
 export class RolesService {
@@ -46,6 +47,24 @@ export class RolesService {
     }
 
     throw new BadRequestException('این کاربر از قبل دارای این نقش است');
+  }
+
+  async deleteRoleFromUser(deleteRole: DeleteRoleFromUser) {
+    const { role_id, user_id } = deleteRole;
+    const user = await this.userService.findUserPermissionById(user_id);
+
+    const role = await this.roleRepository.findOne({ where: { id: role_id } });
+
+    if (!role) {
+      throw new NotFoundException('نقشی با این آیدی یافت نشد');
+    }
+
+    const hasRole = user.roles.find((role) => role.id === role_id);
+    if (hasRole) {
+      return await this.userService.deleteRoleFromUser(user_id, role_id);
+    }
+
+    throw new BadRequestException('نقش مورد نظر نا معتبر است');
   }
 
   findAll() {
