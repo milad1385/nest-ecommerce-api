@@ -94,8 +94,18 @@ export class RolesService {
     return role;
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+  async update(id: number, updateRoleDto: UpdateRoleDto) {
+    const { name } = updateRoleDto;
+    const role = await this.roleRepository.findOne({ where: { id } });
+
+    if (!role) {
+      throw new NotFoundException('نقشی با این آیدی یافت نشد');
+    }
+    if (name) {
+      role.name = name;
+    }
+
+    return await this.roleRepository.save(role);
   }
 
   remove(id: number) {

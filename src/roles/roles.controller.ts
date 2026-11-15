@@ -85,8 +85,18 @@ export class RolesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(+id, updateRoleDto);
+  async update(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    const newRole = await this.rolesService.update(+id, updateRoleDto);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'نقش با موفقیت از کاربر حذف شد',
+      data: newRole,
+    });
   }
 
   @ApiOperation({ summary: 'برای حذف نقش از کاربر است' })
