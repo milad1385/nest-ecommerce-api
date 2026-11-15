@@ -34,6 +34,17 @@ export class RolesController {
     });
   }
 
+  @Post('/append-to-user')
+  async addRoleToUser(@Res() res: Response, @Body() addRole: AddRoleToUser) {
+    const newRole = await this.rolesService.addRoleToUser(addRole);
+
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: 'نقش با موفقیت به کاربر داده شد',
+      data: newRole,
+    });
+  }
+
   @Get()
   findAll() {
     return this.rolesService.findAll();
